@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="./libs/jsonTree/jsonTree.js"></script>
+        <script src="./index.js"></script>
+        <script src="./fileindex.js"></script>
+        
+        <link href="./libs/jsonTree/jsonTree.css" rel="stylesheet" />
+        <link href="./libs/reset.css" rel="stylesheet" />
+        <link href="./style.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="editor">
+            <div class="controls">
+                <button onclick="loadStreamingFolder()">Select StreamingAssets Folder</button>
+                <select id="select-guid-type">
+                    <option value="tree">Tree</option>
+                    <option value="message">Message</option>
+                    <option value="block">Block</option>
+                </select>
+                <input id="path-to-read" placeholder="Path" value="74da6230-45ef-4bb4-8f2e-8f6840e56927" />
+                <button onclick="loadFromGUI()">Load</button>
+            </div>
+            <div id="trees"></div>
+        </div>
+        <script>
+            async function loadStreamingFolder()
+            {
+                await getDir();
+                loadFromGUI();
+            }
+
+            function loadFromGUI()
+            {
+                if(window.dirHandle == null)
+                {
+                    console.error('Select StreamingAssets first!');
+                    return;
+                }
+
+                var prefix = '', postfix = '';
+                switch(document.getElementById('select-guid-type').value)
+                {
+                    case 'tree': prefix = "DDS/Trees/"; postfix =  ".tree"; break;
+                    case 'message': prefix = "DDS/Messages/"; postfix =  ".msg"; break;
+                    case 'block': prefix = "DDS/Blocks/"; postfix =  ".block"; break;
+                }
+
+                initAndLoad(prefix + document.getElementById('path-to-read').value + postfix);
+            }
+        </script>
+    </body>
+</html>

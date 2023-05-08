@@ -1,0 +1,47 @@
+.controls {
+
+}
+
+#path-to-read {
+    width: 500px;
+}
+
+#trees {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    width: 100%;
+    white-space: pre;
+}
+
+.jsontree-container {
+    resize: horizontal;
+    overflow: auto;
+    border: 1px solid;
+    display: inline-flex;
+    height: calc(100vh - 41px);
+    position: relative;
+    white-space: initial;
+}
+
+.jsontree_tree {
+    margin-top: 25px;
+}
+
+.doc-title {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+}
+
+.close-button {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    cursor: pointer;
+}
+
+.link-element {
+    cursor: pointer;  
+    color: blue;
+    text-decoration: underline;
+}
