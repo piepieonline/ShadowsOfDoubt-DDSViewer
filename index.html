@@ -12,7 +12,6 @@
     <body>
         <div class="editor">
             <div class="controls">
-                <button onclick="loadStreamingFolder()">Select StreamingAssets Folder</button>
                 <select id="select-guid-type">
                     <option value="tree">Tree</option>
                     <option value="message">Message</option>
@@ -24,18 +23,11 @@
             <div id="trees"></div>
         </div>
         <script>
-            async function loadStreamingFolder()
-            {
-                await getDir();
-                loadFromGUI();
-            }
-
-            function loadFromGUI()
+            async function loadFromGUI()
             {
                 if(window.dirHandle == null)
                 {
-                    console.error('Select StreamingAssets first!');
-                    return;
+                    await getDir();
                 }
 
                 var prefix = '', postfix = '';

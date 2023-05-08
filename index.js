@@ -34,7 +34,13 @@ async function loadFile(path, thisTreeCount) {
     var data = JSON.parse(await getFile(window.dirHandle, path.split('/'))); 
 
     if(path.includes('Blocks')) {
-        data['_ENG Localisation_'] = window.stringMapping[data.id];
+        var engDummyKey = '_ENG Localisation_';
+        data[engDummyKey] = window.stringMapping[data.id];
+
+        for(var i = 0; i < data.replacements.length; i++)
+        {
+            data.replacements[i][engDummyKey] = window.stringMapping[data.replacements[i].replaceWithID];
+        }
     }
 
     // Create json-tree
