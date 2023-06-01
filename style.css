@@ -41,3 +41,50 @@
     color: blue;
     text-decoration: underline;
 }
+
+/* Modal */
+.hidden {
+    display: none !important;
+}
+
+.help-modal {
+    display: flex;
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(.7, .7, .7, .5);
+}
+
+.help-modal-content {
+    position: relative;
+
+    background-color: #FFFFFF;
+
+    width: 600px;
+    height: 600px;
+
+    padding: 24px;
+}
+
+.help-modal h2 {
+    font-size: larger;
+}
+
+.help-modal h3 {
+    font-size: large;
+}
+
+.help-modal b {
+    font-weight: bold;
+}
+
+.help-modal ul, .help-modal li {
+    list-style: initial;
+}
