@@ -12,7 +12,7 @@ async function loadI18n() {
         var guid = lineContent[0];
         var message = lineContent[2];
 
-        if(message.startsWith('"')) {
+        if(message?.startsWith('"')) {
             var i = 3;
             do
             {
