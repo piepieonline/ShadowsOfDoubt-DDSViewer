@@ -31,3 +31,11 @@ function deleteTree(thisTreeCount) {
 
     window.maxTreeCount = thisTreeCount - 1;
 }
+
+function getJSONPointer(node) {
+    if (node.isRoot) {
+        return "";
+    }
+
+    return getJSONPointer(node.parent) + "/" + node.label;
+}

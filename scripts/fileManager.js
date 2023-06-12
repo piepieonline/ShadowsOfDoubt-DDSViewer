@@ -1,5 +1,6 @@
 async function getStreamingAssetsDir() {
     let firstPass = true;
+    let haveStreamingAssets = false;
     do 
     {
         let options = {};
@@ -19,7 +20,22 @@ async function getStreamingAssetsDir() {
         
         window.dirHandleStreamingAssets = await window.showDirectoryPicker();
         firstPass = false;
-    } while (window.dirHandleStreamingAssets.name != 'StreamingAssets')
+
+        haveStreamingAssets = window.dirHandleStreamingAssets.name === 'StreamingAssets';
+
+        if(!haveStreamingAssets) {
+            let actualStreamingFolder = 
+                await tryGetFolder(window.dirHandleStreamingAssets, ['Shadows of Doubt', 'Shadows of Doubt_Data', 'StreamingAssets']) ||
+                await tryGetFolder(window.dirHandleStreamingAssets, ['Shadows of Doubt_Data', 'StreamingAssets']) ||
+                await tryGetFolder(window.dirHandleStreamingAssets, ['StreamingAssets']);
+
+            if(actualStreamingFolder) {
+                window.dirHandleStreamingAssets = actualStreamingFolder;
+                haveStreamingAssets = true;
+            }
+        }
+
+    } while (!haveStreamingAssets)
 
     await idbKeyval.set('StreamingAssetsPath', window.dirHandleStreamingAssets);
 }
@@ -78,8 +94,8 @@ async function tryGetFolder(handle, path, create)
     }
 }
 
-async function writeFile(fileHandle, contents) {
-    const writable = await fileHandle.createWritable();
+async function writeFile(fileHandle, contents, append) {
+    const writable = await fileHandle.createWritable({ keepExistingData: append });
   
     await writable.write(contents);
   

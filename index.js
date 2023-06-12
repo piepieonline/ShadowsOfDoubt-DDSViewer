@@ -65,8 +65,13 @@ async function loadFile(path, thisTreeCount) {
     // Create json-tree
     var tree = jsonTree.create(data, treeEle);
 
+    let expandedNodes = [ 'messages', 'blocks' ]
     tree.expand(function (node) {
-        return node.label === 'messages' || node.label === 'blocks';
+        if(expandedNodes.includes(node.label))
+        {
+            node.childNodes.forEach(child => child.expand());
+            return true;
+        }
     });
 
     // Links for trees and blocks

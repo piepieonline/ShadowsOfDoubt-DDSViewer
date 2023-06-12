@@ -63,7 +63,7 @@ async function createNewFile(type) {
                 var d = new Date();
                 var datestring = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + " " + ("0" + d.getDate()).slice(-2) + "/" + ("0"+(d.getMonth()+1)).slice(-2) + "/" + d.getFullYear();
 
-                await writeFile(await getFile(window.selectedMod.ddsStrings, ['dds.blocks.csv'], true), `${newContent.id},,Dummy Content,,,,${datestring}`)
+                await writeFile(await getFile(window.selectedMod.ddsStrings, ['dds.blocks.csv'], true), `\r\n${newContent.id},,Dummy Content,,,,${datestring}`, true);
             });
     }
 }
