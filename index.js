@@ -45,7 +45,7 @@ async function loadFile(path, thisTreeCount) {
 
     if (path.includes('Blocks')) {
         var engDummyKey = '_ENG Localisation_';
-        data[engDummyKey] = window.stringMapping[data.id].text;
+        data[engDummyKey] = window.stringMapping[data.id]?.text || "MISSING GUID IN dds.csv";
 
         for (var i = 0; i < data.replacements.length; i++) {
             data.replacements[i][engDummyKey] = window.stringMapping[data.replacements[i].replaceWithID].text;
