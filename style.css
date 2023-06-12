@@ -9,12 +9,19 @@
     white-space: pre;
 }
 
+.file-window {
+    display: inline-flex;
+    height: calc(100vh - 41px);
+    position: relative;
+    white-space: initial;
+}
+
 .jsontree-container {
+    height: calc(100vh - 66px);
+    top: 25px;
     resize: horizontal;
     overflow: auto;
     border: 1px solid;
-    display: inline-flex;
-    height: calc(100vh - 41px);
     position: relative;
     white-space: initial;
 }
@@ -25,13 +32,13 @@
 
 .doc-title {
     position: absolute;
-    top: 3px;
+    top: 8px;
     left: 3px;
 }
 
 .close-button {
     position: absolute;
-    top: 3px;
+    top: 8px;
     right: 3px;
     cursor: pointer;
 }
@@ -40,6 +47,10 @@
     cursor: pointer;  
     color: blue;
     text-decoration: underline;
+}
+
+.editor-bar {
+    position: absolute;
 }
 
 /* Modal */

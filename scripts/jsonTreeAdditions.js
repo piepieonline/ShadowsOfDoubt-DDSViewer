@@ -1,12 +1,17 @@
-function addTreeElement(thisTreeCount, path, parent) {
+function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
     deleteTree(thisTreeCount);
 
     window.maxTreeCount = thisTreeCount;
 
     const div = document.createElement("div");
-    div.id = "jsontree-container_" + thisTreeCount;
-    div.className = "jsontree-container";
+    div.id = "file-window-" + thisTreeCount;
+    div.className = "file-window";
     parent.appendChild(div);
+
+    const jsontreeEle = document.createElement("div");
+    jsontreeEle.id = "jsontree-container_" + thisTreeCount;
+    jsontreeEle.className = "jsontree-container";
+    div.appendChild(jsontreeEle);
 
     const titleEle = document.createElement("div");
     titleEle.className = "doc-title";
@@ -21,12 +26,27 @@ function addTreeElement(thisTreeCount, path, parent) {
     })
     div.appendChild(closeCross);
 
-    return div;
+    // Editor bar
+    const editorBar = document.createElement("div");
+    editorBar.className = "editor-bar";
+    jsontreeEle.appendChild(editorBar);
+
+    const saveChanges = document.createElement("button");
+    saveChanges.innerText = "Save";
+    saveChanges.addEventListener('click', editorCallbacks.save)
+    editorBar.appendChild(saveChanges);
+
+    const copySource = document.createElement("button");
+    copySource.innerText = "Copy Source";
+    copySource.addEventListener('click',editorCallbacks.copySource)
+    editorBar.appendChild(copySource);
+
+    return jsontreeEle;
 }
 
 function deleteTree(thisTreeCount) {
     for (var i = thisTreeCount; i <= window.maxTreeCount; i++) {
-        document.getElementById("jsontree-container_" + i)?.remove()
+        document.getElementById("file-window-" + i)?.remove()
     }
 
     window.maxTreeCount = thisTreeCount - 1;

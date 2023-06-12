@@ -119,6 +119,10 @@
             }
 
             let modName = prompt('Enter a new mod name');
+
+            if(modName == null)
+                return;
+
             await openModFolder(modName, true);
 
             window.loadedMods = await refreshModList();
