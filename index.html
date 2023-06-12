@@ -1,100 +1,112 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <script src="https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/umd.js"></script>
 
-        <script src="./libs/jsonTree/jsonTree.js"></script>
-        <script src="./index.js"></script>
-        <script src="./scripts/htmlHelpers.js"></script>
-        <script src="./scripts/jsonTreeAdditions.js"></script>
-        <script src="./scripts/fileManager.js"></script>
-        <script src="./scripts/modFileManager.js"></script>
-        
-        <link href="./libs/jsonTree/jsonTree.css" rel="stylesheet" />
-        <link href="./libs/reset.css" rel="stylesheet" />
-        <link href="./style.css" rel="stylesheet" />
-    </head>
-    <body>
-        <div class="editor">
-            <div class="controls">
-                <select id="select-loaded-mod" onchange="updateSelectedMod()">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/umd.js"></script>
 
-                </select>
-                <select id="select-guid-type">
-                    <option value="tree">Tree</option>
-                    <option value="message">Message</option>
-                    <option value="block">Block</option>
-                </select>
-                <input id="path-to-read" placeholder="Path" value="74da6230-45ef-4bb4-8f2e-8f6840e56927" />
-                <button onclick="loadFromGUI()">Load</button>
-                <button onclick="document.getElementById('help-modal').classList.toggle('hidden')">Help</button>
-            </div>
-            <div id="trees"></div>
+    <script src="./libs/jsonTree/jsonTree.js"></script>
+    <script src="./index.js"></script>
+    <script src="./scripts/htmlHelpers.js"></script>
+    <script src="./scripts/jsonTreeAdditions.js"></script>
+    <script src="./scripts/fileManager.js"></script>
+    <script src="./scripts/modFileManager.js"></script>
+
+    <link href="./libs/jsonTree/jsonTree.css" rel="stylesheet" />
+    <link href="./libs/reset.css" rel="stylesheet" />
+    <link href="./style.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="editor">
+        <div class="controls">
+            <select id="select-loaded-mod" onchange="updateSelectedMod()">
+
+            </select>
+            <select id="select-guid-type">
+                <option value="tree">Tree</option>
+                <option value="message">Message</option>
+                <option value="block">Block</option>
+            </select>
+            <input id="path-to-read" placeholder="Path" value="74da6230-45ef-4bb4-8f2e-8f6840e56927" />
+            <button onclick="loadFromGUI()">Load</button>
+            <button onclick="document.getElementById('help-modal').classList.toggle('hidden')">Help</button>
         </div>
-        <div id="help-modal" class="help-modal hidden">
-            <div class="help-modal-content">
-                <div class="close-button" onclick="document.getElementById('help-modal').classList.toggle('hidden')">
-                    ❌
-                </div>
-                <h2>Help</h2>
-                <div>
-                    This is a basic tool to help view and create (WIP) new text content for Shadows of Doubt, using the DDS system. All content in SoD is comprised of 4 parts (Trees, Messages, Blocks, Strings, in that order).
-                </div>
-                <br />
-                <ul>
-                    <li><b>Trees:</b> The top level objects, and contain things like the conversation name, participate info and a list of <b>messages</b></li>
-                    <li><b>Messages:</b> Mid level objects containing a list of <b>blocks</b>, each of which and can be set to always appear, or choose one of multiple in a group (Random, or based on traits)</li>
-                    <li><b>Blocks:</b> The lowest level, and generally act as a direct reference to a line in the <b>strings</b> file. However, simple random substitutions can also be made on this level</li>
-                    <li><b>Strings:</b>  Where the actual text comes from, stored in one large CSV. Generally, each block ID has a equivalent line in the CSV. Presented here merged into <b>blocks</b> for clarity</li>
-                </ul>
-                <br />
-                <h2>How to use:</h2>
-                <ul>
-                    <li>Click Load, and open your StreamingAssets folder (e.g. E:\SteamLibrary\steamapps\common\Shadows of Doubt\Shadows of Doubt_Data\StreamingAssets). By default, this will open the 'Romantic_Reservation' VMail <b>Tree</b></li>
-                    <li>Expand messages, and select the msgID. This will open the linked <b>Message</b> template</li>
-                    <li>Expand the second block, and select the blockID. This will open the linked <b>Block</b>, and also fill in the English content as an override '_ENG Localisation_' field</li>
-                </ul>
-                <br />
-                <h2>Community content project</h2>
-                <div>I've opened a community content project (<a href="https://github.com/piepieonline/ShadowsOfDoubtContent">https://github.com/piepieonline/ShadowsOfDoubtContent</a>) in the hopes that we can create a bunch more flavour text as a brains trust.</div>
+        <div id="trees"></div>
+    </div>
+    <div id="help-modal" class="help-modal hidden">
+        <div class="help-modal-content">
+            <div class="close-button" onclick="document.getElementById('help-modal').classList.toggle('hidden')">
+                ❌
             </div>
+            <h2>Help</h2>
+            <div>
+                This is a basic tool to help view and create (WIP) new text content for Shadows of Doubt, using the DDS
+                system. All content in SoD is comprised of 4 parts (Trees, Messages, Blocks, Strings, in that order).
+            </div>
+            <br />
+            <ul>
+                <li><b>Trees:</b> The top level objects, and contain things like the conversation name, participate info
+                    and a list of <b>messages</b></li>
+                <li><b>Messages:</b> Mid level objects containing a list of <b>blocks</b>, each of which and can be set
+                    to always appear, or choose one of multiple in a group (Random, or based on traits)</li>
+                <li><b>Blocks:</b> The lowest level, and generally act as a direct reference to a line in the
+                    <b>strings</b> file. However, simple random substitutions can also be made on this level</li>
+                <li><b>Strings:</b> Where the actual text comes from, stored in one large CSV. Generally, each block ID
+                    has a equivalent line in the CSV. Presented here merged into <b>blocks</b> for clarity</li>
+            </ul>
+            <br />
+            <h2>How to use:</h2>
+            <ul>
+                <li>Click Load, and open your StreamingAssets folder (e.g. E:\SteamLibrary\steamapps\common\Shadows of
+                    Doubt\Shadows of Doubt_Data\StreamingAssets). By default, this will open the 'Romantic_Reservation'
+                    VMail <b>Tree</b></li>
+                <li>Expand messages, and select the msgID. This will open the linked <b>Message</b> template</li>
+                <li>Expand the second block, and select the blockID. This will open the linked <b>Block</b>, and also
+                    fill in the English content as an override '_ENG Localisation_' field</li>
+            </ul>
+            <br />
+            <h2>Community content project</h2>
+            <div>I've opened a community content project (<a
+                    href="https://github.com/piepieonline/ShadowsOfDoubtContent">https://github.com/piepieonline/ShadowsOfDoubtContent</a>)
+                in the hopes that we can create a bunch more flavour text as a brains trust.</div>
         </div>
-        <script>
-            async function init() {
-                await getStreamingAssetsDir();
+    </div>
+    <script>
+        async function init() {
+            await getStreamingAssetsDir();
+        }
+
+        async function loadFromGUI() {
+            if (window.dirHandleStreamingAssets == null) {
+                await init();
             }
 
-            async function loadFromGUI()
-            {
-                if(window.dirHandleStreamingAssets == null)
-                {
-                    await init();
-                }
-                
-                if(window.dirHandleModDir == null)
-                {
+            if (window.dirHandleModDir == null) {
+                try {
                     await getModDir();
                     window.loadedMods = await refreshModList();
                     window.selectedMod = null;
-                    
-                    updateSelect('select-loaded-mod', [ 'None', ...window.loadedMods.map(mod => mod.modName) ]);
-                }
 
-                var prefix = '', postfix = '';
-                switch(document.getElementById('select-guid-type').value)
-                {
-                    case 'tree': prefix = "DDS/Trees/"; postfix =  ".tree"; break;
-                    case 'message': prefix = "DDS/Messages/"; postfix =  ".msg"; break;
-                    case 'block': prefix = "DDS/Blocks/"; postfix =  ".block"; break;
+                    updateSelect('select-loaded-mod', ['None', ...window.loadedMods.map(mod => mod.modName)]);
                 }
-
-                
-                initAndLoad(prefix + document.getElementById('path-to-read').value + postfix);
+                catch { }
             }
 
-            function updateSelectedMod() {
-                window.selectedMod = window.loadedMods.find(mod => mod.modName == document.getElementById('select-loaded-mod').value);
+            var prefix = '', postfix = '';
+            switch (document.getElementById('select-guid-type').value) {
+                case 'tree': prefix = "DDS/Trees/"; postfix = ".tree"; break;
+                case 'message': prefix = "DDS/Messages/"; postfix = ".msg"; break;
+                case 'block': prefix = "DDS/Blocks/"; postfix = ".block"; break;
             }
-        </script>
-    </body>
+
+
+            initAndLoad(prefix + document.getElementById('path-to-read').value + postfix);
+        }
+
+        function updateSelectedMod() {
+            window.selectedMod = window.loadedMods.find(mod => mod.modName == document.getElementById('select-loaded-mod').value);
+        }
+    </script>
+</body>
+
 </html>
