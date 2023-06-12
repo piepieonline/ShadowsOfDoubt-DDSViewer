@@ -7,7 +7,7 @@ async function initAndLoad(path) {
 
 async function loadI18n() {
     async function loadStringsFile(handle, path) {
-        return (await (await getFile(handle, path)).text()).split('\n').reduce((map, val) => {
+        return (await (await (await getFile(handle, path)).getFile()).text()).split('\n').reduce((map, val) => {
             var lineContent = val.split(',');
 
             var guid = lineContent[0];
@@ -39,9 +39,19 @@ async function loadI18n() {
 async function loadFile(path, thisTreeCount) {
     var treeEle = addTreeElement(thisTreeCount, path, document.getElementById('trees'))
 
-    var dataFile = await tryGetFile(window.dirHandleStreamingAssets, path.split('/')) || await tryGetFile(window.selectedMod.baseFolder, path.split('/'));
+    var data = null;
 
-    var data = JSON.parse(await dataFile.text());
+    var vanillaDataFile = await (await (await tryGetFile(window.dirHandleStreamingAssets, path.split('/')))?.getFile())?.text();
+    var patchDataFile = window.selectedMod != null ? (await (await (await tryGetFile(window.selectedMod.baseFolder, (path + '_patch').split('/')))?.getFile())?.text()) : null;
+
+    if(vanillaDataFile != null) {
+        data = JSON.parse(vanillaDataFile);
+        if(patchDataFile != null) {
+            data = jsonpatch.applyPatch(data, JSON.parse(patchDataFile)).newDocument;
+        }
+    } else {
+        data = JSON.parse(await (await (await tryGetFile(window.selectedMod.baseFolder, path.split('/')))?.getFile())?.text());
+    }
 
     if (path.includes('Blocks')) {
         var engDummyKey = '_ENG Localisation_';
@@ -77,8 +87,4 @@ async function loadFile(path, thisTreeCount) {
             }
         });
     });
-}
-
-async function addMod(modName) {
-
 }

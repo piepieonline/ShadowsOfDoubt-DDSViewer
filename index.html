@@ -5,7 +5,10 @@
     <script src="https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/umd.js"></script>
 
     <script src="./libs/jsonTree/jsonTree.js"></script>
+    <script src="./libs/JSON-Patch/fast-json-patch.min.js"></script>
+
     <script src="./index.js"></script>
+    <script src="./scripts/templates.js"></script>
     <script src="./scripts/htmlHelpers.js"></script>
     <script src="./scripts/jsonTreeAdditions.js"></script>
     <script src="./scripts/fileManager.js"></script>
@@ -22,13 +25,15 @@
             <select id="select-loaded-mod" onchange="updateSelectedMod()">
 
             </select>
-            <select id="select-guid-type">
+            <button id="new-mod-button" onclick="newMod()">New mod folder</button>
+            <select id="select-guid-type" onchange="document.getElementById('new-file-button').innerText = `New ${document.getElementById('select-guid-type').value}`">
                 <option value="tree">Tree</option>
                 <option value="message">Message</option>
                 <option value="block">Block</option>
             </select>
             <input id="path-to-read" placeholder="Path" value="74da6230-45ef-4bb4-8f2e-8f6840e56927" />
             <button onclick="loadFromGUI()">Load</button>
+            <button id="new-file-button" onclick="newFile()">New tree</button>
             <button onclick="document.getElementById('help-modal').classList.toggle('hidden')">Help</button>
         </div>
         <div id="trees"></div>
@@ -105,6 +110,36 @@
 
         function updateSelectedMod() {
             window.selectedMod = window.loadedMods.find(mod => mod.modName == document.getElementById('select-loaded-mod').value);
+        }
+
+        async function newMod() {
+            if (window.dirHandleStreamingAssets == null || window.dirHandleModDir == null) {
+                alert('Please load StreamingAssets and a parent mod folder first');
+                throw 'Please load StreamingAssets and a parent mod folder first';
+            }
+
+            let modName = prompt('Enter a new mod name');
+            await openModFolder(modName, true);
+
+            window.loadedMods = await refreshModList();
+            updateSelect('select-loaded-mod', ['None', ...window.loadedMods.map(mod => mod.modName)]);
+            window.selectedMod = window.loadedMods.filter(mod => mod.modName == modName)[0];
+            document.getElementById('select-loaded-mod').value = modName;
+            updateSelectedMod();
+        }
+
+        async function newFile() {
+            if(window.selectedMod == null)
+            {
+                alert('Please select a mod to edit first');
+                throw 'Please select a mod to edit first';
+            }
+
+            let newGUID = await createNewFile(document.getElementById('select-guid-type').value)
+
+            document.getElementById('path-to-read').value = newGUID;
+
+            await loadFromGUI();
         }
     </script>
 </body>

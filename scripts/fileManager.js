@@ -34,7 +34,7 @@ async function getModDir() {
 async function getFile(handle, path, create) {
     if(path.length == 1)
     {
-        return await (await handle.getFileHandle(path[0])).getFile({ options: { create } });
+        return await (await handle.getFileHandle(path[0], { create }));
     }
     else
     {
@@ -57,12 +57,12 @@ async function tryGetFile(handle, path, create) {
 async function getFolder(handle, path, create) {
     if(path.length == 1)
     {
-        return await handle.getDirectoryHandle(path[0], { options: { create }});
+        return await handle.getDirectoryHandle(path[0], { create });
     }
     else
     {
         var folder = path.splice(0, 1)[0];
-        return getFolder(await handle.getDirectoryHandle(folder), path, create);
+        return getFolder(await handle.getDirectoryHandle(folder, { create }), path, create);
     }
 }
 
@@ -77,3 +77,12 @@ async function tryGetFolder(handle, path, create)
         return null;
     }
 }
+
+async function writeFile(fileHandle, contents) {
+    const writable = await fileHandle.createWritable();
+  
+    await writable.write(contents);
+  
+    await writable.close();
+}
+  
