@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/umd.js"></script>
+
         <script src="./libs/jsonTree/jsonTree.js"></script>
         <script src="./index.js"></script>
-        <script src="./fileindex.js"></script>
+        <script src="./scripts/htmlHelpers.js"></script>
+        <script src="./scripts/jsonTreeAdditions.js"></script>
+        <script src="./scripts/fileManager.js"></script>
+        <script src="./scripts/modFileManager.js"></script>
         
         <link href="./libs/jsonTree/jsonTree.css" rel="stylesheet" />
         <link href="./libs/reset.css" rel="stylesheet" />
@@ -12,6 +17,9 @@
     <body>
         <div class="editor">
             <div class="controls">
+                <select id="select-loaded-mod" onchange="updateSelectedMod()">
+
+                </select>
                 <select id="select-guid-type">
                     <option value="tree">Tree</option>
                     <option value="message">Message</option>
@@ -52,11 +60,24 @@
             </div>
         </div>
         <script>
+            async function init() {
+                await getStreamingAssetsDir();
+            }
+
             async function loadFromGUI()
             {
-                if(window.dirHandle == null)
+                if(window.dirHandleStreamingAssets == null)
                 {
-                    await getDir();
+                    await init();
+                }
+                
+                if(window.dirHandleModDir == null)
+                {
+                    await getModDir();
+                    window.loadedMods = await refreshModList();
+                    window.selectedMod = null;
+                    
+                    updateSelect('select-loaded-mod', [ 'None', ...window.loadedMods.map(mod => mod.modName) ]);
                 }
 
                 var prefix = '', postfix = '';
@@ -67,7 +88,12 @@
                     case 'block': prefix = "DDS/Blocks/"; postfix =  ".block"; break;
                 }
 
+                
                 initAndLoad(prefix + document.getElementById('path-to-read').value + postfix);
+            }
+
+            function updateSelectedMod() {
+                window.selectedMod = window.loadedMods.find(mod => mod.modName == document.getElementById('select-loaded-mod').value);
             }
         </script>
     </body>
