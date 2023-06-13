@@ -90,6 +90,9 @@ async function writeFile(fileHandle, contents, append) {
     if (append) {
         let offset = (await fileHandle.getFile()).size;
         writeable.seek(offset);
+        if(offset === 0) {
+            contents = contents.trim();
+        }
     }
 
     await writeable.write(contents);

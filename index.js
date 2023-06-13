@@ -1,9 +1,10 @@
 const LOCALISATION_DUMMY_KEY = '_ENG Localisation_';
+const LOCALISATION_MISSING_STRING = 'MISSING GUID IN dds.csv';
 
 async function initAndLoad(path) {
     window.stringMapping = {};
-    loadI18n();
-    loadFile(path, 0);
+    await loadI18n();
+    await loadFile(path, 0);
     window.maxTreeCount = 0;
 }
 
@@ -11,6 +12,9 @@ async function loadI18n() {
     async function loadStringsFile(handle, path) {
         return (await (await (await getFile(handle, path)).getFile()).text()).split('\n').reduce((map, val) => {
             var lineContent = val.split(',');
+
+            // Sanity Check each line
+            if (lineContent.length < 7) return map;
 
             var guid = lineContent[0];
             var message = lineContent[2];
@@ -54,19 +58,24 @@ async function loadFile(path, thisTreeCount) {
     } else {
         data = JSON.parse(await (await (await tryGetFile(window.selectedMod.baseFolder, path.split('/')))?.getFile())?.text());
     }
-    
-    // Show actual text
-    if (path.includes('Blocks')) {
-        data[LOCALISATION_DUMMY_KEY] = window.stringMapping[data.id]?.text || "MISSING GUID IN dds.csv";
 
-        for (var i = 0; i < data.replacements.length; i++) {
-            data.replacements[i][LOCALISATION_DUMMY_KEY] = window.stringMapping[data.replacements[i].replaceWithID].text;
-        }
-    }
+    // Show actual text
+    createDummyKeys(data);
 
     // Create json-tree
     var tree = jsonTree.create(data, treeEle);
     runTreeSetup();
+
+    function createDummyKeys(data) {
+        if (path.includes('Blocks')) {
+            data[LOCALISATION_DUMMY_KEY] = window.stringMapping[data.id]?.text || LOCALISATION_MISSING_STRING;
+
+            for (var i = 0; i < data.replacements.length; i++) {
+                data.replacements[i][LOCALISATION_DUMMY_KEY] = window.stringMapping[data.replacements[i].replaceWithID]?.text || LOCALISATION_MISSING_STRING;
+            }
+        }
+        return data;
+    }
 
     async function runTreeSetup() {
         // Auto-expand the useful keys
@@ -101,40 +110,71 @@ async function loadFile(path, thisTreeCount) {
 
         // Simple types
         tree.findAndHandle(item => {
-            return !item.isComplex && item.label != LOCALISATION_DUMMY_KEY;
+            return !item.isComplex;
         }, item => {
             var ele = item.el.querySelector('.jsontree_value');
             ele.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
 
-                if(!window.selectedMod) {
+                if (!window.selectedMod) {
                     alert('Please select a mod to save in first');
                     throw 'Please select a mod to save in first';
                 }
 
-                let currentValue = item.el.querySelector('.jsontree_value').innerText;
+                let previousValue = item.el.querySelector('.jsontree_value').innerText;
 
+                // If it's a string, auto-handle quotes
                 if (item.type == 'string') {
-                    currentValue = currentValue.substring(1, currentValue.length - 1);
+                    previousValue = previousValue.substring(1, previousValue.length - 1);
                 }
 
-                let res = prompt('Enter new value', currentValue);
+                let res = prompt('Enter new value', previousValue);
 
                 if ((item.type == 'string' && res != 'null' && res !== null)) {
+                    // Allow double quoted for included commas etc
+                    if (res.startsWith("\"")) {
+                        res = '\\"' + res.substring(1, res.length - 1) + '\\"';
+                    }
+
+                    // Auto-handle quotes again
                     res = '"' + res + '"';
                 }
 
                 let parsed = JSON.parse(res);
-                if (parsed || parsed === false || res === 'null') {
-                    data = jsonpatch.applyPatch(data, [
-                        {
-                            op: 'replace',
-                            path: getJSONPointer(item),
-                            value: parsed
+                if (item.label != LOCALISATION_DUMMY_KEY) {
+                    if (parsed || parsed === false || res === 'null') {
+                        data = jsonpatch.applyPatch(data, [
+                            {
+                                op: 'replace',
+                                path: getJSONPointer(item),
+                                value: parsed
+                            }
+                        ]).newDocument;
+                        data = createDummyKeys(data);
+                        tree.loadData(data);
+                        runTreeSetup();
+                    }
+                } else {
+                    item.parent.findChildren(node => ['id', 'replaceWithID'].includes(node.label), async node => {
+                        let guidString = node.el.querySelector('.jsontree_value').innerText;
+                        guidString = guidString.substring(1, guidString.length - 1);
+
+                        if (window.stringMapping[guidString].source == 'StreamingAssets') {
+                            alert('Modifying vanilla content is unsupported');
+                            throw 'Modifying vanilla content is unsupported';
                         }
-                    ]).newDocument;
-                    tree.loadData(data);
-                    runTreeSetup();
+
+                        if (previousValue == LOCALISATION_MISSING_STRING) {
+                            await addToStrings(guidString, parsed);
+                        } else {
+                            await modifyExistingString(guidString, parsed);
+                        }
+
+                        // Visually update the value, since we aren't changing the tree
+                        item.el.querySelector('.jsontree_value').innerText = parsed;
+
+                        await loadI18n();
+                    });
                 }
             });
         });
@@ -147,18 +187,19 @@ async function loadFile(path, thisTreeCount) {
             ele.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
 
-                if(!window.selectedMod) {
+                if (!window.selectedMod) {
                     alert('Please select a mod to save in first');
                     throw 'Please select a mod to save in first';
                 }
 
-                if(confirm('Remove Element?')) {
+                if (confirm('Remove Element?')) {
                     data = jsonpatch.applyPatch(data, [
                         {
                             op: 'remove',
                             path: getJSONPointer(item)
                         }
                     ]).newDocument;
+                    data = createDummyKeys(data);
                     tree.loadData(data);
                     runTreeSetup();
                 }
@@ -173,15 +214,15 @@ async function loadFile(path, thisTreeCount) {
             ele.addEventListener('contextmenu', async (e) => {
                 e.preventDefault();
 
-                if(!window.selectedMod) {
+                if (!window.selectedMod) {
                     alert('Please select a mod to save in first');
                     throw 'Please select a mod to save in first';
                 }
 
-                if(confirm('Add Element?')) {                   
+                if (confirm('Add Element?')) {
                     let newContent = await getTemplateForLabel(item.label, prompt(`Existing GUID (Or cancel to create a new file)`));
 
-                    if(!newContent) return;
+                    if (!newContent) return;
 
                     data = jsonpatch.applyPatch(data, [
                         {
@@ -190,6 +231,7 @@ async function loadFile(path, thisTreeCount) {
                             value: newContent
                         }
                     ]).newDocument;
+                    data = createDummyKeys(data);
                     tree.loadData(data);
                     runTreeSetup();
                 }
@@ -202,15 +244,15 @@ async function loadFile(path, thisTreeCount) {
     }
 
     async function save() {
-        if(!window.selectedMod) {
+        if (!window.selectedMod) {
             alert('Please select a mod to save in first');
             throw 'Please select a mod to save in first';
         }
 
-        if(vanillaDataFile) {
+        if (vanillaDataFile) {
             // Save patches of vanilla files
             writeFile(await tryGetFile(window.selectedMod.baseFolder, (path + '_patch').split('/'), true), JSON.stringify(jsonpatch.compare(JSON.parse(vanillaDataFile), JSON.parse(getSaveSafeJSON()))), false);
-            
+
         } else {
             // Save entire custom files
             writeFile(await tryGetFile(window.selectedMod.baseFolder, path.split('/'), true), getSaveSafeJSON(), false);
@@ -223,20 +265,20 @@ async function loadFile(path, thisTreeCount) {
 }
 
 async function getTemplateForLabel(itemType, guid) {
-    switch(itemType) {
-        case 'messages': 
+    switch (itemType) {
+        case 'messages':
             let message = cloneTemplate('treeMessage');
             message.msgID = guid || await createNewFile('message');
             message.instanceID = crypto.randomUUID();
             return message;
-        case 'blocks': 
+        case 'blocks':
             let block = cloneTemplate('messageBlock');
             block.blockID = guid || await createNewFile('block');
             block.instanceID = crypto.randomUUID();
             return block;
-        case 'replacements': 
+        case 'replacements':
             let replacement = cloneTemplate('blockReplacement');
-            if(guid) {
+            if (guid) {
                 replacement.replaceWithID = guid;
             } else {
                 replacement.replaceWithID = crypto.randomUUID();

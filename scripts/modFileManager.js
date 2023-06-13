@@ -67,8 +67,21 @@ async function createNewFile(type) {
 }
 
 async function addToStrings(id, content) {
-    var d = new Date();
-    var datestring = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + " " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
-    await writeFile(await getFile(window.selectedMod.ddsStrings, ['dds.blocks.csv'], true), `\r\n${id},,${content},,,,${datestring}`, true);
+    let d = new Date();
+    let datestring = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + " " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+    await writeFile(await getFile(window.selectedMod.ddsStrings, ['dds.blocks.csv'], true), `\n${id},,${content},,,,${datestring}`, true);
+    await loadI18n();
+}
+
+async function modifyExistingString(id, content) {
+    let d = new Date();
+    let datestring = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + " " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+
+    let stringsFileHandle = await getFile(window.selectedMod.ddsStrings, ['dds.blocks.csv'], true);
+    let stringsFileContent = (await (await stringsFileHandle.getFile()).text())
+        // Split the file by line, find and replace the given GUID, recombine the file
+        .split('\n').map(val => (val.startsWith(id) ? `${id},,${content},,,,${datestring}` : val)).join('\n');
+
+    await writeFile(stringsFileHandle, stringsFileContent, false);
     await loadI18n();
 }

@@ -108,8 +108,9 @@
             initAndLoad(prefix + document.getElementById('path-to-read').value + postfix);
         }
 
-        function updateSelectedMod() {
+        async function updateSelectedMod() {
             window.selectedMod = window.loadedMods.find(mod => mod.modName == document.getElementById('select-loaded-mod').value);
+            loadI18n();
         }
 
         async function newMod() {
