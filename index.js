@@ -66,6 +66,10 @@ async function loadFile(path, thisTreeCount) {
     var tree = jsonTree.create(data, treeEle);
     runTreeSetup();
 
+    if(path.split('/').at(-1).split('.')[0] != data.id) {
+        alert('Filename doesn\'t match id! File will not work in game!');
+    }
+
     function createDummyKeys(data) {
         if (path.includes('Blocks')) {
             data[LOCALISATION_DUMMY_KEY] = window.stringMapping[data.id]?.text || LOCALISATION_MISSING_STRING;
