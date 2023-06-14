@@ -47,7 +47,7 @@ async function createNewFile(type) {
                 newContent.messages[0].msgID = await createNewFile('message');
                 newContent.messages[0].instanceID = crypto.randomUUID();
                 newContent.name = newContent.messages[0].name;
-                newContent.startingMessage = newContent.messages[0].id;
+                newContent.startingMessage = newContent.messages[0].instanceID;
             });
         case 'message':
             return createNewFileImpl(window.selectedMod.messages, 'message', async newContent => {
@@ -58,7 +58,6 @@ async function createNewFile(type) {
             });
         case 'block':
             return createNewFileImpl(window.selectedMod.blocks, 'block', async newContent => {
-                newContent.id = crypto.randomUUID();
                 newContent.name = prompt(`English Line`)
 
                 await addToStrings(newContent.id, newContent.name);
