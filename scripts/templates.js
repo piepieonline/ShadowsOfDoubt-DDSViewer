@@ -121,6 +121,23 @@ window.templates.treeMessage = {
     "wordSpace": 0.0
 }
 
+window.templates.treeMessageLinks = {
+    "from": "",
+    "to": "",
+    "delayInterval": {
+      "x": 0,
+      "y": 0.01
+    },
+    "useWeights": false,
+    "choiceWeight": 0.5,
+    "useKnowLike": false,
+    "know": 0.5,
+    "like": 0.5,
+    "useTraits": false,
+    "traits": [],
+    "traitConditions": 0
+  }
+
 window.templates.message = {
     "blocks": [
     ],

@@ -130,6 +130,10 @@ async function loadFile(path, thisTreeCount) {
 
                 let res = prompt('Enter new value', previousValue);
 
+                if(res === null) {
+                    return;
+                }
+
                 if ((item.type == 'string' && res != 'null' && res !== null)) {
                     // Allow double quoted for included commas etc
                     if (res.startsWith("\"")) {
@@ -142,7 +146,7 @@ async function loadFile(path, thisTreeCount) {
 
                 let parsed = JSON.parse(res);
                 if (item.label != LOCALISATION_DUMMY_KEY) {
-                    if (parsed || parsed === false || res === 'null') {
+                    if (parsed || parsed === false || parsed === 0 || res === 'null') {
                         data = jsonpatch.applyPatch(data, [
                             {
                                 op: 'replace',
@@ -220,9 +224,9 @@ async function loadFile(path, thisTreeCount) {
                 }
 
                 if (confirm('Add Element?')) {
-                    let newContent = await getTemplateForLabel(item.label, prompt(`Existing GUID (Or cancel to create a new file)`));
+                    let newContent = await getTemplateForItem(item);
 
-                    if (!newContent) return;
+                    if (newContent === null) return;
 
                     data = jsonpatch.applyPatch(data, [
                         {
@@ -264,27 +268,40 @@ async function loadFile(path, thisTreeCount) {
     }
 }
 
-async function getTemplateForLabel(itemType, guid) {
-    switch (itemType) {
+async function getTemplateForItem(item) {
+    switch (item.label) {
         case 'messages':
             let message = cloneTemplate('treeMessage');
-            message.msgID = guid || await createNewFile('message');
+            message.msgID = prompt(`Existing GUID (Or cancel to create a new file)`) || await createNewFile('message');
             message.instanceID = crypto.randomUUID();
             return message;
+        case 'links':
+            let treeMessageLinks = cloneTemplate('treeMessageLinks');
+            treeMessageLinks.to = prompt(`Existing instanceID`) || '';
+            treeMessageLinks.from = item.parent.childNodes.find(node => node.label == 'instanceID').el.querySelector('.jsontree_value').innerText.replaceAll('"', '');
+            return treeMessageLinks;
+        case 'traits':
+            return prompt(`Trait name`) || null;
         case 'blocks':
             let block = cloneTemplate('messageBlock');
-            block.blockID = guid || await createNewFile('block');
+            block.blockID = prompt(`Existing GUID (Or cancel to create a new file)`) || await createNewFile('block');
             block.instanceID = crypto.randomUUID();
             return block;
         case 'replacements':
             let replacement = cloneTemplate('blockReplacement');
+            let guid = prompt(`Existing GUID (Or cancel to create a new file)`);
             if (guid) {
                 replacement.replaceWithID = guid;
             } else {
                 replacement.replaceWithID = crypto.randomUUID();
                 await addToStrings(replacement.replaceWithID, prompt(`English Line`));
             }
-
             return replacement;
+        case 'jobs':
+            return prompt(`Job name`) || null;
+        case 'triggers':
+            return prompt(`Trigger index`) || null;
+        default:
+            return null;
     }
 }
