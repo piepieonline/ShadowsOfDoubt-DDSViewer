@@ -34,6 +34,7 @@
             <input id="path-to-read" placeholder="Path" value="74da6230-45ef-4bb4-8f2e-8f6840e56927" />
             <button onclick="loadFromGUI()">Load</button>
             <button id="new-file-button" onclick="newFile()">New tree</button>
+            <button id="saving-enabled-button" class="" onclick="setSaving(!window.savingEnabled)">Disable Saving</button>
             <button onclick="document.getElementById('help-modal').classList.toggle('hidden')">Help</button>
         </div>
         <div id="trees"></div>
@@ -104,7 +105,6 @@
                 case 'block': prefix = "DDS/Blocks/"; postfix = ".block"; break;
             }
 
-
             initAndLoad(prefix + document.getElementById('path-to-read').value + postfix);
         }
 
@@ -146,6 +146,15 @@
 
             await loadFromGUI();
         }
+
+        function setSaving(saving) {
+            window.savingEnabled = saving;
+
+            let ele = document.getElementById('saving-enabled-button');
+            ele.classList.toggle('saving-disabled');
+            ele.innerText = saving ? 'Disable Saving' : 'Enable Saving';
+        }
+        setSaving(true);
     </script>
 </body>
 

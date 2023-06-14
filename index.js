@@ -113,7 +113,7 @@ async function loadFile(path, thisTreeCount) {
             return !item.isComplex;
         }, item => {
             var ele = item.el.querySelector('.jsontree_value');
-            ele.addEventListener('contextmenu', (e) => {
+            ele.addEventListener('contextmenu', async (e) => {
                 e.preventDefault();
 
                 if (!window.selectedMod) {
@@ -157,6 +157,7 @@ async function loadFile(path, thisTreeCount) {
                         data = createDummyKeys(data);
                         tree.loadData(data);
                         runTreeSetup();
+                        await save();
                     }
                 } else {
                     item.parent.findChildren(node => ['id', 'replaceWithID'].includes(node.label), async node => {
@@ -188,7 +189,7 @@ async function loadFile(path, thisTreeCount) {
             return item.parent.type === 'array';
         }, item => {
             var ele = item.el.querySelector('.jsontree_label');
-            ele.addEventListener('contextmenu', (e) => {
+            ele.addEventListener('contextmenu', async (e) => {
                 e.preventDefault();
 
                 if (!window.selectedMod) {
@@ -206,6 +207,7 @@ async function loadFile(path, thisTreeCount) {
                     data = createDummyKeys(data);
                     tree.loadData(data);
                     runTreeSetup();
+                    await save();
                 }
             });
         });
@@ -238,6 +240,7 @@ async function loadFile(path, thisTreeCount) {
                     data = createDummyKeys(data);
                     tree.loadData(data);
                     runTreeSetup();
+                    await save();
                 }
             });
         });
@@ -247,11 +250,13 @@ async function loadFile(path, thisTreeCount) {
         navigator.clipboard.writeText(getSaveSafeJSON());
     }
 
-    async function save() {
+    async function save(force) {
         if (!window.selectedMod) {
             alert('Please select a mod to save in first');
             throw 'Please select a mod to save in first';
         }
+
+        if(!window.savingEnabled && !force) return;
 
         if (vanillaDataFile) {
             // Save patches of vanilla files

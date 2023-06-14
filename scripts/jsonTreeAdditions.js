@@ -33,7 +33,7 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
 
     const saveChanges = document.createElement("button");
     saveChanges.innerText = "Save";
-    saveChanges.addEventListener('click', editorCallbacks.save)
+    saveChanges.addEventListener('click', () => editorCallbacks.save(true))
     editorBar.appendChild(saveChanges);
 
     const copySource = document.createElement("button");

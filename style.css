@@ -30,6 +30,14 @@
     margin-top: 25px;
 }
 
+#saving-enabled-button {
+    background-color: lightcoral;
+}
+
+#saving-enabled-button.saving-disabled { 
+    background-color: lightgreen;
+}
+
 .doc-title {
     position: absolute;
     top: 8px;
