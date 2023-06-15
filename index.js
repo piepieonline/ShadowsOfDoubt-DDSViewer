@@ -150,7 +150,7 @@ async function loadFile(path, thisTreeCount) {
 
                 let parsed = JSON.parse(res);
                 if (item.label != LOCALISATION_DUMMY_KEY) {
-                    if (parsed || parsed === false || parsed === 0 || res === 'null') {
+                    if (parsed || parsed === false || parsed === 0 || parsed === '' || res === 'null') {
                         data = jsonpatch.applyPatch(data, [
                             {
                                 op: 'replace',
