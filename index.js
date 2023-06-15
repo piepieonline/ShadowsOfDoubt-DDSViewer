@@ -146,6 +146,8 @@ async function loadFile(path, thisTreeCount) {
 
                     // Auto-handle quotes again
                     res = '"' + res + '"';
+
+                    res = res.replace(/\\/g, '\\\\');
                 }
 
                 let parsed = JSON.parse(res);
