@@ -26,7 +26,8 @@
 
             </select>
             <button id="new-mod-button" onclick="newMod()">New mod folder</button>
-            <select id="select-guid-type" onchange="document.getElementById('new-file-button').innerText = `New ${document.getElementById('select-guid-type').value}`">
+            <select id="select-guid-type"
+                onchange="document.getElementById('new-file-button').innerText = `New ${document.getElementById('select-guid-type').value}`">
                 <option value="tree">Tree</option>
                 <option value="message">Message</option>
                 <option value="block">Block</option>
@@ -34,13 +35,15 @@
             <input id="path-to-read" placeholder="Path" value="74da6230-45ef-4bb4-8f2e-8f6840e56927" />
             <button onclick="loadFromGUI()">Load</button>
             <button id="new-file-button" onclick="newFile()">New tree</button>
-            <button id="saving-enabled-button" class="" onclick="setSaving(!window.savingEnabled)">Disable Saving</button>
+            <button id="saving-enabled-button" onclick="setSaving(!window.savingEnabled)">Disable Saving</button>
+            <button id="toggle-favs-button" onclick="toggleFav()">Favourite</button>
+            <button onclick="showFavs()">Show Favourites</button>
             <button onclick="document.getElementById('help-modal').classList.toggle('hidden')">Help</button>
         </div>
         <div id="trees"></div>
     </div>
-    <div id="help-modal" class="help-modal hidden">
-        <div class="help-modal-content">
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-content">
             <div class="close-button" onclick="document.getElementById('help-modal').classList.toggle('hidden')">
                 ❌
             </div>
@@ -56,13 +59,15 @@
                 <li><b>Messages:</b> Mid level objects containing a list of <b>blocks</b>, each of which and can be set
                     to always appear, or choose one of multiple in a group (Random, or based on traits)</li>
                 <li><b>Blocks:</b> The lowest level, and generally act as a direct reference to a line in the
-                    <b>strings</b> file. However, simple random substitutions can also be made on this level</li>
+                    <b>strings</b> file. However, simple random substitutions can also be made on this level
+                </li>
                 <li><b>Strings:</b> Where the actual text comes from, stored in one large CSV. Generally, each block ID
                     has a equivalent line in the CSV. Presented here merged into <b>blocks</b> for clarity</li>
             </ul>
             <br />
             <h2>How to use:</h2>
-                <p>Instructions for use can now be found on the <a href="https://shadowsofdoubtmodding.miraheze.org/wiki/DDS_System">wiki</a>.</p>
+            <p>Instructions for use can now be found on the <a
+                    href="https://shadowsofdoubtmodding.miraheze.org/wiki/DDS_System">wiki</a>.</p>
             <br />
             <h2>Community content project</h2>
             <div>I've opened a community content project (<a
@@ -70,7 +75,21 @@
                 in the hopes that we can create a bunch more flavour text as a brains trust.</div>
         </div>
     </div>
+    <div id="fav-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="close-button" onclick="document.getElementById('fav-modal').classList.toggle('hidden')">
+                ❌
+            </div>
+            <h2>Favourites</h2>
+            <ul id="fav-list">
+
+            </ul>
+        </div>
+    </div>
     <script>
+        if (localStorage.getItem('favs') == null) localStorage.setItem('favs', '[]');
+        updateFavButton();
+
         async function init() {
             await getStreamingAssetsDir();
         }
@@ -98,7 +117,9 @@
                 case 'block': prefix = "DDS/Blocks/"; postfix = ".block"; break;
             }
 
-            initAndLoad(prefix + document.getElementById('path-to-read').value + postfix);
+            await initAndLoad(prefix + document.getElementById('path-to-read').value + postfix);
+
+            updateFavButton();
         }
 
         async function updateSelectedMod() {
@@ -114,7 +135,7 @@
 
             let modName = prompt('Enter a new mod name');
 
-            if(modName == null)
+            if (modName == null)
                 return;
 
             await openModFolder(modName, true);
@@ -127,8 +148,7 @@
         }
 
         async function newFile() {
-            if(window.selectedMod == null)
-            {
+            if (window.selectedMod == null) {
                 alert('Please select a mod to edit first');
                 throw 'Please select a mod to edit first';
             }
@@ -138,6 +158,8 @@
             document.getElementById('path-to-read').value = newGUID;
 
             await loadFromGUI();
+
+            updateFavButton();
         }
 
         function setSaving(saving) {
@@ -148,6 +170,43 @@
             ele.innerText = saving ? 'Disable Saving' : 'Enable Saving';
         }
         setSaving(true);
+
+        function showFavs() {
+            document.getElementById('fav-list').innerHTML = JSON.parse(localStorage.getItem('favs')).map(fav =>
+                `<li>${fav.name} - <span class="link-element" onclick="document.getElementById('path-to-read').value = '${fav.guid}'; loadFromGUI(); showFavs();">${fav.guid}</span></li>`
+            ).join('');
+            document.getElementById('fav-modal').classList.toggle('hidden')
+        }
+
+        function toggleFav() {
+            let guid = document.getElementById('path-to-read').value;
+            let favs = JSON.parse(localStorage.getItem('favs'));
+
+            let currentFav = favs.find(ele => ele.guid === guid);
+
+            if (currentFav) {
+                favs.splice(favs.indexOf(currentFav), 1);
+            } else {
+                let name = prompt('Enter name for this GUID');
+                if (name) {
+                    favs.push({
+                        mod: window.selectedMod,
+                        type: 'tree',
+                        guid,
+                        name
+                    });
+                }
+            }
+
+            localStorage.setItem('favs', JSON.stringify(favs));
+
+            updateFavButton();
+        }
+
+        function updateFavButton() {
+            let currentFav = JSON.parse(localStorage.getItem('favs')).find(ele => ele.guid === document.getElementById('path-to-read').value);
+            document.getElementById('toggle-favs-button').innerText = currentFav ? 'Unfavourite' : 'Favourite';
+        }
     </script>
 </body>
 

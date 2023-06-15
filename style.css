@@ -66,7 +66,7 @@
     display: none !important;
 }
 
-.help-modal {
+.modal {
     display: flex;
     position: absolute;
 
@@ -81,7 +81,7 @@
     background-color: rgba(.7, .7, .7, .5);
 }
 
-.help-modal-content {
+.modal-content {
     position: relative;
 
     background-color: #FFFFFF;
@@ -92,18 +92,18 @@
     padding: 24px;
 }
 
-.help-modal h2 {
+.modal h2 {
     font-size: larger;
 }
 
-.help-modal h3 {
+.modal h3 {
     font-size: large;
 }
 
-.help-modal b {
+.modal b {
     font-weight: bold;
 }
 
-.help-modal ul, .help-modal li {
+.modal ul, .modal li {
     list-style: initial;
 }
