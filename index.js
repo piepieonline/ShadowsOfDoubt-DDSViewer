@@ -66,16 +66,25 @@ async function loadFile(path, thisTreeCount) {
     var tree = jsonTree.create(data, treeEle);
     runTreeSetup();
 
-    if(path.split('/').at(-1).split('.')[0] != data.id) {
+    if (path.split('/').at(-1).split('.')[0] != data.id) {
         alert('Filename doesn\'t match id! File will not work in game!');
     }
 
     function createDummyKeys(data) {
-        if (path.includes('Blocks')) {
-            data[LOCALISATION_DUMMY_KEY] = window.stringMapping[data.id]?.text || LOCALISATION_MISSING_STRING;
+        function createDummyKey(obj, id) {
+            let value = window.stringMapping[id]?.text || LOCALISATION_MISSING_STRING;
 
+            if (value.startsWith('"')) {
+                value = value.substring(1, value.length - 1);
+            }
+
+            obj[LOCALISATION_DUMMY_KEY] = value;
+        }
+
+        if (path.includes('Blocks')) {
+            createDummyKey(data, data.id);
             for (var i = 0; i < data.replacements.length; i++) {
-                data.replacements[i][LOCALISATION_DUMMY_KEY] = window.stringMapping[data.replacements[i].replaceWithID]?.text || LOCALISATION_MISSING_STRING;
+                createDummyKey(data.replacements[i], data.replacements[i].replaceWithID);
             }
         }
         return data;
@@ -130,24 +139,30 @@ async function loadFile(path, thisTreeCount) {
                 // If it's a string, auto-handle quotes
                 if (item.type == 'string') {
                     previousValue = previousValue.substring(1, previousValue.length - 1);
+
+                    // Double quotes
+                    if (previousValue.startsWith('"')) {
+                        previousValue = previousValue.substring(1, previousValue.length - 1);
+                    }
                 }
 
                 let res = prompt('Enter new value', previousValue);
 
-                if(res === null) {
+                if (res === null) {
                     return;
                 }
 
                 if ((item.type == 'string' && res != 'null' && res !== null)) {
+
+                    res = res.replace(/\\/g, '\\\\');
+
                     // Allow double quoted for included commas etc
-                    if (res.startsWith("\"")) {
-                        res = '\\"' + res.substring(1, res.length - 1) + '\\"';
+                    if (res.includes(",")) {
+                        res = '\\"' + res + '\\"';
                     }
 
                     // Auto-handle quotes again
                     res = '"' + res + '"';
-
-                    res = res.replace(/\\/g, '\\\\');
                 }
 
                 let parsed = JSON.parse(res);
@@ -182,7 +197,7 @@ async function loadFile(path, thisTreeCount) {
                         }
 
                         // Visually update the value, since we aren't changing the tree
-                        item.el.querySelector('.jsontree_value').innerText = parsed;
+                        item.el.querySelector('.jsontree_value').innerText = parsed.startsWith('"') ? parsed : '"' + parsed + '"';
 
                         await loadI18n();
                     });
@@ -262,7 +277,7 @@ async function loadFile(path, thisTreeCount) {
             throw 'Please select a mod to save in first';
         }
 
-        if(!window.savingEnabled && !force) return;
+        if (!window.savingEnabled && !force) return;
 
         if (vanillaDataFile) {
             // Save patches of vanilla files
