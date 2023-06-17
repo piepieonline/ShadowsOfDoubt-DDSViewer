@@ -59,3 +59,22 @@ function getJSONPointer(node) {
 
     return getJSONPointer(node.parent) + "/" + node.label;
 }
+
+function createEnumSelectElement(domNode, options, selectedIndex) {
+    //Create and append select list
+    var selectList = document.createElement("select");
+    domNode.replaceChildren(selectList);
+
+    //Create and append the options
+    for (var i = 0; i < options.length; i++) {
+        var option = document.createElement("option");
+        
+        option.value = i;
+        option.text = options[i];
+        option.selected = i == selectedIndex;
+
+        selectList.appendChild(option);
+    }
+
+    return selectList;
+}

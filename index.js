@@ -90,6 +90,20 @@ async function loadFile(path, thisTreeCount) {
         return data;
     }
 
+    async function modifyTreeElement(jsonPointer, newValue) {
+        data = jsonpatch.applyPatch(data, [
+            {
+                op: 'replace',
+                path: jsonPointer,
+                value: newValue
+            }
+        ]).newDocument;
+        data = createDummyKeys(data);
+        tree.loadData(data);
+        runTreeSetup();
+        await save();
+    }
+
     async function runTreeSetup() {
         // Auto-expand the useful keys
         let expandedNodes = ['messages', 'blocks', 'replacements']
@@ -121,79 +135,80 @@ async function loadFile(path, thisTreeCount) {
 
         // Editing operations
 
-        // Simple types
+        // Simple types, direct editing and enums
         tree.findAndHandle(item => {
             return !item.isComplex;
         }, item => {
             var ele = item.el.querySelector('.jsontree_value');
-            ele.addEventListener('contextmenu', async (e) => {
-                e.preventDefault();
 
-                if (!window.selectedMod) {
-                    alert('Please select a mod to save in first');
-                    throw 'Please select a mod to save in first';
-                }
+            if (window.enums[item.label]?.length > 0) {
+                createEnumSelectElement(
+                    item.el.querySelector('.jsontree_value'),
+                    window.enums[item.label],
+                    ele.innerText
+                ).addEventListener('change', async (e) => {
+                    await modifyTreeElement(getJSONPointer(item), parseInt(e.target.value));
+                });
+            } else {
+                ele.addEventListener('contextmenu', async (e) => {
+                    e.preventDefault();
 
-                let previousValue = item.el.querySelector('.jsontree_value').innerText;
+                    if (!window.selectedMod) {
+                        alert('Please select a mod to save in first');
+                        throw 'Please select a mod to save in first';
+                    }
 
-                // If it's a string, auto-handle quotes
-                if (item.type == 'string') {
-                    previousValue = previousValue.substring(1, previousValue.length - 1);
+                    let previousValue = item.el.querySelector('.jsontree_value').innerText;
 
-                    // Double quotes
-                    if (previousValue.startsWith('"')) {
+                    // If it's a string, auto-handle quotes
+                    if (item.type == 'string') {
                         previousValue = previousValue.substring(1, previousValue.length - 1);
+
+                        // Double quotes
+                        if (previousValue.startsWith('"')) {
+                            previousValue = previousValue.substring(1, previousValue.length - 1);
+                        }
                     }
-                }
 
-                let res = prompt('Enter new value', previousValue);
+                    let res = prompt('Enter new value', previousValue);
 
-                if (res === null) {
-                    return;
-                }
+                    if (res === null) {
+                        return;
+                    }
 
-                if ((item.type == 'string' && res != 'null' && res !== null)) {
-                    res = makeCSVSafe(res);
-                }
+                    if ((item.type == 'string' && res != 'null' && res !== null)) {
+                        res = makeCSVSafe(res);
+                    }
 
-                let parsed = JSON.parse(res);
-                if (item.label != LOCALISATION_DUMMY_KEY) {
-                    if (parsed || parsed === false || parsed === 0 || parsed === '' || res === 'null') {
-                        data = jsonpatch.applyPatch(data, [
-                            {
-                                op: 'replace',
-                                path: getJSONPointer(item),
-                                value: parsed
+                    let parsed = JSON.parse(res);
+                    if (item.label != LOCALISATION_DUMMY_KEY) {
+                        if (parsed || parsed === false || parsed === 0 || parsed === '' || res === 'null') {
+                            await modifyTreeElement(getJSONPointer(item), parsed);
+                        }
+                    } else {
+                        item.parent.findChildren(node => ['id', 'replaceWithID'].includes(node.label), async node => {
+                            let guidString = node.el.querySelector('.jsontree_value').innerText;
+                            guidString = guidString.substring(1, guidString.length - 1);
+
+                            if (window.stringMapping[guidString].source == 'StreamingAssets') {
+                                alert('Modifying vanilla content is unsupported');
+                                throw 'Modifying vanilla content is unsupported';
                             }
-                        ]).newDocument;
-                        data = createDummyKeys(data);
-                        tree.loadData(data);
-                        runTreeSetup();
-                        await save();
+
+                            if (previousValue == LOCALISATION_MISSING_STRING) {
+                                await addToStrings(guidString, parsed);
+                            } else {
+                                await modifyExistingString(guidString, parsed);
+                            }
+
+                            // Visually update the value, since we aren't changing the tree
+                            item.el.querySelector('.jsontree_value').innerText = parsed.startsWith('"') ? parsed : '"' + parsed + '"';
+
+                            await loadI18n();
+                        });
                     }
-                } else {
-                    item.parent.findChildren(node => ['id', 'replaceWithID'].includes(node.label), async node => {
-                        let guidString = node.el.querySelector('.jsontree_value').innerText;
-                        guidString = guidString.substring(1, guidString.length - 1);
-
-                        if (window.stringMapping[guidString].source == 'StreamingAssets') {
-                            alert('Modifying vanilla content is unsupported');
-                            throw 'Modifying vanilla content is unsupported';
-                        }
-
-                        if (previousValue == LOCALISATION_MISSING_STRING) {
-                            await addToStrings(guidString, parsed);
-                        } else {
-                            await modifyExistingString(guidString, parsed);
-                        }
-
-                        // Visually update the value, since we aren't changing the tree
-                        item.el.querySelector('.jsontree_value').innerText = parsed.startsWith('"') ? parsed : '"' + parsed + '"';
-
-                        await loadI18n();
-                    });
-                }
-            });
+                });
+            }
         });
 
         // Removing element
