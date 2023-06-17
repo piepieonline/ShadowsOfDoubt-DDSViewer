@@ -153,16 +153,7 @@ async function loadFile(path, thisTreeCount) {
                 }
 
                 if ((item.type == 'string' && res != 'null' && res !== null)) {
-
-                    res = res.replace(/\\/g, '\\\\');
-
-                    // Allow double quoted for included commas etc
-                    if (res.includes(",")) {
-                        res = '\\"' + res + '\\"';
-                    }
-
-                    // Auto-handle quotes again
-                    res = '"' + res + '"';
+                    res = makeCSVSafe(res);
                 }
 
                 let parsed = JSON.parse(res);

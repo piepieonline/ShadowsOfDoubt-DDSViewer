@@ -46,7 +46,7 @@ async function createNewFile(type) {
                 newContent.messages.push(cloneTemplate('treeMessage'));
                 newContent.messages[0].msgID = await createNewFile('message');
                 newContent.messages[0].instanceID = crypto.randomUUID();
-                newContent.name = newContent.messages[0].name;
+                newContent.name = makeNameFieldSafe(window.selectedMod.modName + "-" + 'DefaultTree');
                 newContent.startingMessage = newContent.messages[0].instanceID;
             });
         case 'message':
@@ -54,13 +54,14 @@ async function createNewFile(type) {
                 newContent.blocks.push(cloneTemplate('messageBlock'));
                 newContent.blocks[0].blockID = await createNewFile('block');
                 newContent.blocks[0].instanceID = crypto.randomUUID();
-                newContent.name = newContent.blocks[0].name;
+                newContent.name = makeNameFieldSafe(window.selectedMod.modName + "-" + 'DefaultBlock');
             });
         case 'block':
             return createNewFileImpl(window.selectedMod.blocks, 'block', async newContent => {
-                newContent.name = prompt(`English Line`)
+                let line = JSON.parse(makeCSVSafe(prompt(`English Line`)));
+                newContent.name = makeNameFieldSafe(window.selectedMod.modName + "-" + line.substring(0, 20));
 
-                await addToStrings(newContent.id, newContent.name);
+                await addToStrings(newContent.id, line);
             });
     }
 }
@@ -83,4 +84,21 @@ async function modifyExistingString(id, content) {
 
     await writeFile(stringsFileHandle, stringsFileContent, false);
     await loadI18n();
+}
+
+function makeNameFieldSafe(name) {
+    return name.replaceAll(/[^a-zA-Z0-9\-]/g, "");
+}
+
+function makeCSVSafe(line) {
+    line = line.replace(/\\/g, '\\\\');
+
+    // Allow double quoted for included commas etc
+    if (line.includes(",")) {
+        line = '\\"' + line + '\\"';
+    }
+
+    line = '"' + line + '"';
+
+    return line;
 }
