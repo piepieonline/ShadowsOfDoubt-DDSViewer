@@ -129,3 +129,20 @@ window.enums.traitConditions = [
 ];
 
 window.enums.traitCondition = window.enums.traitConditions;
+
+window.enums.category = [
+    'general',
+    'murder',
+    'ad',
+    'foreignAffairs',
+    'murderSecond'
+]
+
+window.enums.context = [
+    'nothing',
+    'lastMurder',
+    'player',
+    'randomCitizen',
+    'randomCriminal',
+    'randomGroup'
+]

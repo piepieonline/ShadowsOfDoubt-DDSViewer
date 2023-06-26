@@ -58,11 +58,32 @@ async function createNewFile(type) {
             });
         case 'block':
             return createNewFileImpl(window.selectedMod.blocks, 'block', async newContent => {
-                let line = JSON.parse(makeCSVSafe(prompt(`English Line`)));
+                let line = JSON.parse(makeCSVSafe(prompt(`English Line`)).replace(/"/g, '\\"'));
                 newContent.name = makeNameFieldSafe(window.selectedMod.modName + "-" + line.substring(0, 20));
 
                 await addToStrings(newContent.id, line);
             });
+    }
+}
+
+async function createFileIfNotExisting(type, guid) {
+    let handle, filename, contentType;
+
+    switch(type) {
+        case 'newspaper':
+            handle = window.selectedMod.messages;
+            filename = [`${guid}.newspaper`];
+            contentType = 'newspaper';
+            break;
+        default:
+            throw 'Not implemented'
+    }
+
+    let file = await tryGetFile(handle, filename)
+    if(!file)
+    {
+        file = await getFile(handle, filename, true);
+        await writeFile(file, JSON.stringify(cloneTemplate(contentType)));
     }
 }
 

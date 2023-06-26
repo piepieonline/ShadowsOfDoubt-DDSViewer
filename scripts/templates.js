@@ -125,8 +125,8 @@ window.templates.treeMessageLinks = {
     "from": "",
     "to": "",
     "delayInterval": {
-      "x": 0,
-      "y": 0.01
+        "x": 0,
+        "y": 0.01
     },
     "useWeights": false,
     "choiceWeight": 0.5,
@@ -136,7 +136,7 @@ window.templates.treeMessageLinks = {
     "useTraits": false,
     "traits": [],
     "traitConditions": 0
-  }
+}
 
 window.templates.message = {
     "blocks": [
@@ -173,4 +173,13 @@ window.templates.blockReplacement = {
     "useConnection": false,
     "useDislikeLike": false,
     "useTraits": false
+}
+
+// Not vanilla! Maps to the scriptable object
+window.templates.newspaper = {
+    "disabled": false,
+    "category": 0,
+    "followupStories": [],
+    "possibleImages": [],
+    "context": 0
 }

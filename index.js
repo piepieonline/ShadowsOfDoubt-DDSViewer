@@ -1,4 +1,8 @@
-const LOCALISATION_DUMMY_KEY = '_ENG Localisation_';
+const DUMMY_KEYS = {
+    'LOCALISATION_DUMMY_KEY': '_ENG Localisation_',
+    'NEWSPAPER_DUMMY_KEY': '_Newspaper Article Configuration_'
+};
+
 const LOCALISATION_MISSING_STRING = 'MISSING GUID IN dds.csv';
 
 async function initAndLoad(path) {
@@ -42,7 +46,7 @@ async function loadI18n() {
     }
 }
 
-async function loadFile(path, thisTreeCount) {
+async function loadFile(path, thisTreeCount, parentData) {
     var treeEle = addTreeElement(thisTreeCount, path, document.getElementById('trees'), { copySource, save })
 
     var data = null;
@@ -66,26 +70,31 @@ async function loadFile(path, thisTreeCount) {
     var tree = jsonTree.create(data, treeEle);
     runTreeSetup();
 
-    if (path.split('/').at(-1).split('.')[0] != data.id) {
+    let fileName = path.split('/').at(-1);
+    if (['tree', 'msg', 'block'].includes(fileName.split('.')[1]) && fileName.split('.')[0] != data.id) {
         alert('Filename doesn\'t match id! File will not work in game!');
     }
 
     function createDummyKeys(data) {
-        function createDummyKey(obj, id) {
+        function createDummyLocalisationKey(obj, id) {
             let value = window.stringMapping[id]?.text || LOCALISATION_MISSING_STRING;
 
             if (value.startsWith('"')) {
                 value = value.substring(1, value.length - 1);
             }
 
-            obj[LOCALISATION_DUMMY_KEY] = value;
+            obj[DUMMY_KEYS.LOCALISATION_DUMMY_KEY] = value;
         }
 
         if (path.includes('Blocks')) {
-            createDummyKey(data, data.id);
+            createDummyLocalisationKey(data, data.id);
             for (var i = 0; i < data.replacements.length; i++) {
-                createDummyKey(data.replacements[i], data.replacements[i].replaceWithID);
+                createDummyLocalisationKey(data.replacements[i], data.replacements[i].replaceWithID);
             }
+        }
+
+        if (parentData?.treeType == 3) { // Newspaper
+            data[DUMMY_KEYS.NEWSPAPER_DUMMY_KEY] = data.id;
         }
         return data;
     }
@@ -116,18 +125,27 @@ async function loadFile(path, thisTreeCount) {
 
         // Links for trees and blocks
         tree.findAndHandle(item => {
-            return ['msgID', 'blockID'].includes(item.label);
-        }, item => {
+            return ['msgID', 'blockID', DUMMY_KEYS.NEWSPAPER_DUMMY_KEY].includes(item.label);
+        }, async item => {
             var ele = item.el.querySelector('.jsontree_value_string');
+            const guid = ele.innerText.replace(/"/g, "");
+
             ele.classList.add('link-element')
+
+            if(item.label == DUMMY_KEYS.NEWSPAPER_DUMMY_KEY) {
+                await createFileIfNotExisting('newspaper', guid);
+            }
+
             ele.addEventListener('click', () => {
-                const guid = item.el.querySelector('.jsontree_value_string').innerText.replace(/"/g, "");
                 switch (item.label) {
                     case 'msgID':
-                        loadFile(`DDS/Messages/${guid}.msg`, thisTreeCount + 1);
+                        loadFile(`DDS/Messages/${guid}.msg`, thisTreeCount + 1, data);
                         break;
                     case 'blockID':
-                        loadFile(`DDS/Blocks/${guid}.block`, thisTreeCount + 1);
+                        loadFile(`DDS/Blocks/${guid}.block`, thisTreeCount + 1, data);
+                        break;
+                    case DUMMY_KEYS.NEWSPAPER_DUMMY_KEY:
+                        loadFile(`DDS/Messages/${guid}.newspaper`, thisTreeCount + 1, data);
                         break;
                 }
             });
@@ -181,7 +199,7 @@ async function loadFile(path, thisTreeCount) {
                     }
 
                     let parsed = JSON.parse(res);
-                    if (item.label != LOCALISATION_DUMMY_KEY) {
+                    if (item.label != DUMMY_KEYS.LOCALISATION_DUMMY_KEY) {
                         if (parsed || parsed === false || parsed === 0 || parsed === '' || res === 'null') {
                             await modifyTreeElement(getJSONPointer(item), parsed);
                         }
@@ -296,7 +314,7 @@ async function loadFile(path, thisTreeCount) {
     }
 
     function getSaveSafeJSON() {
-        return JSON.stringify(data, (key, value) => (key === '_ENG Localisation_' ? undefined : value), 2);
+        return JSON.stringify(data, (key, value) => (Object.keys(DUMMY_KEYS).includes(key) ? undefined : value), 2);
     }
 }
 
