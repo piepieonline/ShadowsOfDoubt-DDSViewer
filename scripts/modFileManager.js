@@ -58,7 +58,7 @@ async function createNewFile(type) {
             });
         case 'block':
             return createNewFileImpl(window.selectedMod.blocks, 'block', async newContent => {
-                let line = JSON.parse(makeCSVSafe(prompt(`English Line`)).replace(/"/g, '\\"'));
+                let line = JSON.parse(makeCSVSafe(prompt(`English Line`)));
                 newContent.name = makeNameFieldSafe(window.selectedMod.modName + "-" + line.substring(0, 20));
 
                 await addToStrings(newContent.id, line);
