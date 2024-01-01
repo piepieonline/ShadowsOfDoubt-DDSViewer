@@ -20,7 +20,7 @@ async function loadI18n() {
             // Sanity Check each line
             if (lineContent.length < 7) return map;
 
-            var guid = lineContent[0];
+            var guid = lineContent[0].replaceAll('"', '');
             var message = lineContent[2];
 
             if (message?.startsWith('"') && !message.endsWith('"')) {
