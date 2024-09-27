@@ -148,6 +148,7 @@ window.templates.message = {
 window.templates.messageBlock = {
     "alwaysDisplay": true,
     "blockID": "DEFAULT_GUID",
+    "forceScope": 0,
     "group": 0,
     "instanceID": "DEFAULT_GUID",
     "traitConditions": 0,
