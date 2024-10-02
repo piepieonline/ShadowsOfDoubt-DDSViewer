@@ -126,6 +126,11 @@
 
         async function updateSelectedMod() {
             window.selectedMod = window.loadedMods.find(mod => mod.modName == document.getElementById('select-loaded-mod').value);
+
+            if(window.savingEnabled) {
+                await openModFolder(window.selectedMod.modName, true);
+            }
+
             loadI18n();
         }
 

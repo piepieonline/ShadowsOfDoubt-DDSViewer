@@ -15,7 +15,7 @@ async function getStreamingAssetsDir() {
             options.startIn = window.dirHandleStreamingAssets;
         }
 
-        window.dirHandleStreamingAssets = await window.showDirectoryPicker();
+        window.dirHandleStreamingAssets = await window.showDirectoryPicker(options);
         firstPass = false;
 
         haveStreamingAssets = window.dirHandleStreamingAssets.name === 'StreamingAssets';
