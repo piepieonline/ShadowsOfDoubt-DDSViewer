@@ -3,10 +3,8 @@
 }
 
 #trees {
-    overflow-x: scroll;
-    overflow-y: hidden;
-    width: 100%;
-    white-space: pre;
+    padding: 0 50px;
+    display: flex;
 }
 
 .file-window {
@@ -14,6 +12,11 @@
     height: calc(100vh - 41px);
     position: relative;
     white-space: initial;
+    min-width: min(600px, max(500px, calc(100vw/3)))
+}
+
+.file-window:nth-child(3) {
+    flex-grow: 1;
 }
 
 .jsontree-container {
@@ -24,6 +27,7 @@
     border: 1px solid;
     position: relative;
     white-space: initial;
+    flex-grow: 1;
 }
 
 .jsontree_tree {

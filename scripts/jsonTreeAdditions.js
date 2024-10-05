@@ -6,6 +6,10 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
     div.className = "file-window";
     parent.appendChild(div);
 
+    const controlsEle = document.createElement("div");
+    controlsEle.className = "jsontree-container-controls";
+    div.appendChild(controlsEle);
+
     const jsontreeEle = document.createElement("div");
     jsontreeEle.id = "jsontree-container_" + thisTreeCount;
     jsontreeEle.className = "jsontree-container";
@@ -14,7 +18,7 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
     const titleEle = document.createElement("div");
     titleEle.className = "doc-title";
     titleEle.innerText = path;
-    div.appendChild(titleEle);
+    controlsEle.appendChild(titleEle);
 
     const closeCross = document.createElement("div");
     closeCross.innerText = "❌";
@@ -22,7 +26,7 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
     closeCross.addEventListener('click', () => {
         deleteTree(thisTreeCount);
     })
-    div.appendChild(closeCross);
+    controlsEle.appendChild(closeCross);
 
     // Editor bar
     const editorBar = document.createElement("div");
