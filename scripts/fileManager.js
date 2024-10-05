@@ -38,10 +38,12 @@ async function getStreamingAssetsDir() {
 }
 
 async function getModDir() {
-    let modPath = await idbKeyval.get('ModPath');
+    // No way to pass this from one app to the other :(
+    const dbKey = 'DDSModPath';
+    let modPath = await idbKeyval.get(dbKey);
     let options = modPath ? { startIn: modPath, mode: 'readwrite' } : { mode: 'readwrite' };
     window.dirHandleModDir = await window.showDirectoryPicker(options);
-    await idbKeyval.set('ModPath', window.dirHandleModDir);
+    await idbKeyval.set(dbKey, window.dirHandleModDir);
 }
 
 async function getFile(handle, path, create) {
