@@ -1,8 +1,6 @@
 function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
     deleteTree(thisTreeCount);
 
-    window.maxTreeCount = thisTreeCount;
-
     const div = document.createElement("div");
     div.id = "file-window-" + thisTreeCount;
     div.className = "file-window";
@@ -45,11 +43,12 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
 }
 
 function deleteTree(thisTreeCount) {
-    for (var i = thisTreeCount; i <= window.maxTreeCount; i++) {
-        document.getElementById("file-window-" + i)?.remove()
+    var i = thisTreeCount;
+    while(document.getElementById("file-window-" + i) != null)
+    {
+        document.getElementById("file-window-" + i)?.remove();
+        i++;
     }
-
-    window.maxTreeCount = thisTreeCount - 1;
 }
 
 function getJSONPointer(node) {

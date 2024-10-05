@@ -117,7 +117,7 @@
                     window.selectedMod = null;
 
                     updateSelect('select-loaded-mod', ['None', ...window.loadedMods.map(mod => mod.modName)]);
-                    if(window?.queryParams?.selectedMod != "") {
+                    if(window?.queryParams?.selectedMod && window.queryParams.selectedMod != "") {
                         document.getElementById('select-loaded-mod').value = window.queryParams.selectedMod;
                         updateSelectedMod();
                     }

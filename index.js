@@ -5,11 +5,12 @@ const DUMMY_KEYS = {
 
 const LOCALISATION_MISSING_STRING = 'MISSING GUID IN dds.csv';
 
+const GUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 async function initAndLoad(path) {
     window.stringMapping = {};
     await loadI18n();
     await loadFile(path, 0);
-    window.maxTreeCount = 0;
 }
 
 async function loadI18n() {
@@ -73,6 +74,16 @@ async function loadFile(path, thisTreeCount, parentData) {
     let fileName = path.split('/').at(-1);
     if (['tree', 'msg', 'block'].includes(fileName.split('.')[1]) && fileName.split('.')[0] != data.id) {
         alert('Filename doesn\'t match id! File will not work in game!');
+    }
+
+    if(path.endsWith(".tree")) {
+        let validMessageId = data.messages.find(msg => GUID_PATTERN.test(msg.msgID))?.msgID;
+        if(validMessageId)
+            await loadFile(`DDS/Messages/${validMessageId}.msg`, 1, data)
+    } else if(path.endsWith(".msg")) {
+        let validBlockId = data.blocks.find(block => GUID_PATTERN.test(block.blockID))?.blockID;
+        if(validBlockId)
+            await loadFile(`DDS/Blocks/${validBlockId}.block`, 2, data)
     }
 
     function createDummyKeys(data) {
@@ -139,13 +150,13 @@ async function loadFile(path, thisTreeCount, parentData) {
             ele.addEventListener('click', () => {
                 switch (item.label) {
                     case 'msgID':
-                        loadFile(`DDS/Messages/${guid}.msg`, thisTreeCount + 1, data);
+                        loadFile(`DDS/Messages/${guid}.msg`, 1, data);
                         break;
                     case 'blockID':
-                        loadFile(`DDS/Blocks/${guid}.block`, thisTreeCount + 1, data);
+                        loadFile(`DDS/Blocks/${guid}.block`, 2, data);
                         break;
                     case DUMMY_KEYS.NEWSPAPER_DUMMY_KEY:
-                        loadFile(`DDS/Messages/${guid}.newspaper`, thisTreeCount + 1, data);
+                        loadFile(`DDS/Messages/${guid}.newspaper`, 2, data);
                         break;
                 }
             });
