@@ -127,6 +127,12 @@
             }
 
             let fileID = document.getElementById('path-to-read').value;
+
+            if(!GUID_PATTERN.test(fileID)) {
+                alert('Invalid GUID format, please check and try loading again');
+                return;
+            }
+
             let fileType = '';
             if(window.ddsMap.trees.indexOf(fileID) != -1) fileType = 'tree';
             else if(window.ddsMap.messages.indexOf(fileID) != -1) fileType = 'message';
