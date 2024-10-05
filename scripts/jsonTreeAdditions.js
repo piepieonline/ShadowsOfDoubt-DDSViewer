@@ -44,9 +44,10 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
 
 function deleteTree(thisTreeCount) {
     var i = thisTreeCount;
-    while(document.getElementById("file-window-" + i) != null)
+    while(i < 3)
     {
-        document.getElementById("file-window-" + i)?.remove();
+        if(document.getElementById("file-window-" + i) != null)
+            document.getElementById("file-window-" + i)?.remove();
         i++;
     }
 }

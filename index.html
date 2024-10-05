@@ -11,8 +11,9 @@
     <script src="./libs/jsonTree/jsonTree.js"></script>
     <script src="./libs/JSON-Patch/fast-json-patch.min.js"></script>
 
-    <script src="./scripts/templates.js"></script>
-    <script src="./scripts/enums.js"></script>
+    <script type="module" src="./scripts/loadRefs.js"></script>
+    <script src="./scripts/ref/templates.js"></script>
+    <script src="./scripts/ref/enums.js"></script>
 
     <script src="./index.js"></script>
     <script src="./scripts/htmlHelpers.js"></script>
@@ -125,14 +126,23 @@
                 catch { }
             }
 
+            let fileID = document.getElementById('path-to-read').value;
+            let fileType = '';
+            if(window.ddsMap.trees.indexOf(fileID) != -1) fileType = 'tree';
+            else if(window.ddsMap.messages.indexOf(fileID) != -1) fileType = 'message';
+            else if(window.ddsMap.blocks.indexOf(fileID) != -1) fileType = 'block';
+            else fileType = document.getElementById('select-guid-type').value;
+
+            document.getElementById('select-guid-type').value = fileType;
+
             var prefix = '', postfix = '';
-            switch (document.getElementById('select-guid-type').value) {
+            switch (fileType) {
                 case 'tree': prefix = "DDS/Trees/"; postfix = ".tree"; break;
                 case 'message': prefix = "DDS/Messages/"; postfix = ".msg"; break;
                 case 'block': prefix = "DDS/Blocks/"; postfix = ".block"; break;
             }
 
-            await initAndLoad(prefix + document.getElementById('path-to-read').value + postfix);
+            await initAndLoad(prefix + fileID + postfix);
 
             updateFavButton();
         }
