@@ -93,6 +93,19 @@
             </ul>
         </div>
     </div>
+    <div id="load-modal" class="modal">
+        <div class="modal-content">
+            <h2>Before you start</h2>
+            <p>We need to open two directories so the tool can operate normally. If you only want to read content and not save anything, you can cancel the second file dialog.</p>
+            <ul>
+                <li>StreamingAssets: This is the game folder (Generally something like ".\steamapps\common\Shadows of Doubt\") which we need to read base game content from. This is <strong>read-only</strong>.</li>
+                <li>A mod folder: This is your working folder, generally the same as the case editor. New files and vanilla patches are read by the DDS Loader from here. This is <strong>read-write</strong>.</li>
+            </ul>
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="(async () => { await loadFromGUI(); document.getElementById('load-modal').classList.toggle('hidden'); })()">Select Folders</button>
+            </div>
+        </div>
+    </div>
     <script>
         if (localStorage.getItem('favs') == null) localStorage.setItem('favs', '[]');
         updateFavButton();

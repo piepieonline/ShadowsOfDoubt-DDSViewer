@@ -107,3 +107,30 @@
 .modal ul, .modal li {
     list-style: initial;
 }
+
+/* Before you start modal */
+#load-modal {
+    h2 {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .modal-content {
+        height: 200px;
+        width: 800px;
+    }
+
+    button {
+        font-size: 18px;
+    }
+
+    strong {
+        font-weight: bold;
+    }
+
+    p {
+        margin-bottom: 18px;
+    }
+}
