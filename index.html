@@ -54,10 +54,12 @@
             <button id="new-file-button" onclick="newFile()">New tree</button>
             <button id="saving-enabled-button" onclick="setSaving(!window.savingEnabled)">Disable Saving</button>
             <button onclick="showBrowse()">Browse...</button>
+            <button onclick="showReverseSearch()">Reverse Search</button>
             <button onclick="document.getElementById('help-modal').classList.toggle('hidden')">Help</button>
         </div>
         <div id="trees"></div>
     </div>
+    <!-- Help modal. Mostly redirect to the wiki -->
     <div id="help-modal" class="modal hidden">
         <div class="modal-content">
             <div class="close-button" onclick="document.getElementById('help-modal').classList.toggle('hidden')">
@@ -91,6 +93,7 @@
                 in the hopes that we can create a bunch more flavour text as a brains trust.</div>
         </div>
     </div>
+    <!-- Browse modal, for searching trees/messages/blocks and favourites -->
     <div id="fav-modal" class="modal hidden">
         <div class="modal-content">
             <div class="close-button" onclick="document.getElementById('fav-modal').classList.toggle('hidden')">
@@ -113,6 +116,7 @@
             </ul>
         </div>
     </div>
+    <!-- Before you start loading modal -->
     <div id="load-modal" class="modal">
         <div class="modal-content">
             <h2>Before you start</h2>
@@ -123,6 +127,29 @@
             </ul>
             <div style="text-align: center; margin-top: 30px;">
                 <button onclick="(async () => { await loadFromGUI(); document.getElementById('load-modal').classList.toggle('hidden'); })()">Select Folders</button>
+            </div>
+        </div>
+    </div>
+    <!-- Reverse search modal -->
+    <div id="rsearch-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="close-button" onclick="document.getElementById('rsearch-modal').classList.toggle('hidden')">
+                ❌
+            </div>
+            <h2>Reverse Search</h2>
+            <div class="controls">
+                <input id="rsearch-typeahead" type="text" oninput="updateRSearch()" placeholder="Search string content" />
+            </div>
+            <div class="rsearch-results-container">
+                <ul id="rsearch-text-list">
+    
+                </ul>
+                <table>
+                    <thead><tr><td>Top level occurrences:</td></tr></thead>
+                    <tbody id="rsearch-result-view">
+    
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

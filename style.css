@@ -107,6 +107,10 @@
     color: blue;
     text-decoration: underline;
     font-family: monospace;
+
+    &:hover {
+        text-decoration-line: none;
+    }
 }
 
 /* Modal */
@@ -183,7 +187,7 @@
     }
 }
 
-#fav-modal {
+#fav-modal, #rsearch-modal {
     h2 {
         font-size: 22px;
         text-align: center;
@@ -199,8 +203,44 @@
         text-align: center;
         margin-bottom: 5px;
     }
+}
 
-    .fav-typeahead-hidden {
-        display: none;
+#fav-modal {
+    ul#fav-list {
+        overflow-y: auto;
+        max-height: calc(100% - 40px);
+    }
+}
+
+#rsearch-modal {
+    .modal-content {
+        width: 1000px;
+    }
+
+    .controls {
+        margin: 10px 0;
+    }
+
+    .rsearch-results-container {
+        display: flex;
+        height: calc(100% - 60px);
+    }
+
+    ul#rsearch-text-list {
+        overflow-y: auto;
+        word-wrap: break-word;
+        height: 100%;
+        width: calc(50% - 10px);
+        margin-right: 20px;
+    }
+
+    #rsearch-result-view {
+        ul {
+            padding-left: 10px;
+        }
+
+        li {
+            list-style: none;
+        }
     }
 }

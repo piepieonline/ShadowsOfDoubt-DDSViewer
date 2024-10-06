@@ -9,11 +9,6 @@
     grid-gap: 10px;
 }
 
-#trees .link-element {
-    cursor: pointer;
-    text-decoration-line: underline;
-}
-
 #trees .jsontree_label[title]:not([title=""]) {
     text-decoration-style: dotted;
     text-decoration-line: underline;

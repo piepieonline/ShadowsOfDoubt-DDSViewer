@@ -4,5 +4,6 @@ window.ddsMap = {
     trees: ddsMap.Trees,
     messages: ddsMap.Messages,
     blocks: ddsMap.Blocks,
-    idNameMap: ddsMap.IdNameMap
+    idNameMap: ddsMap.IdNameMap,
+    reverseIdMap: ddsMap.ReverseIdMap
 };

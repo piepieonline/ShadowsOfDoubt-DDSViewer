@@ -34,6 +34,10 @@ async function getStreamingAssetsDir() {
 
     } while (!haveStreamingAssets)
 
+    let ddsBlocksFile = await readFileContent(await tryGetFile(window.dirHandleStreamingAssets, ['Strings', 'English', 'DDS', 'dds.blocks.csv'], false));
+    window.vanillaDDSStringsContent = ddsBlocksFile.split(/(?:\r)?\n/).slice(3);
+    window.createRSearchList();
+
     await idbKeyval.set('StreamingAssetsPath', window.dirHandleStreamingAssets);
 }
 
@@ -64,6 +68,10 @@ async function tryGetFile(handle, path, create) {
     {
         return null;
     }
+}
+
+async function readFileContent(handle) {
+    return await (await (handle)?.getFile())?.text()
 }
 
 async function getFolder(handle, path, create) {
