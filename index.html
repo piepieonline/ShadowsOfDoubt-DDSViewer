@@ -26,7 +26,6 @@
     <link href="./jsontree_overrides.css" rel="stylesheet" />
     <link href="./libs/reset.css" rel="stylesheet" />
     <link href="./style.css" rel="stylesheet" />
-    <link href="./new_style.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -35,7 +34,7 @@
             <select id="select-loaded-mod" onchange="updateSelectedMod()">
 
             </select>
-            <button id="new-mod-button" onclick="newMod()">New mod folder</button>
+            <button id="new-mod-button" onclick="newMod()">Create new mod folder</button>
             <select id="select-guid-type"
                 onchange="document.getElementById('new-file-button').innerText = `New ${document.getElementById('select-guid-type').value}`">
                 <option value="tree">Tree</option>
@@ -46,8 +45,7 @@
             <button onclick="loadFromGUI()">Load</button>
             <button id="new-file-button" onclick="newFile()">New tree</button>
             <button id="saving-enabled-button" onclick="setSaving(!window.savingEnabled)">Disable Saving</button>
-            <button id="toggle-favs-button" onclick="toggleFav()">Favourite</button>
-            <button onclick="showFavs()">Show Favourites</button>
+            <button onclick="showBrowse()">Browse...</button>
             <button onclick="document.getElementById('help-modal').classList.toggle('hidden')">Help</button>
         </div>
         <div id="trees"></div>
@@ -90,7 +88,18 @@
             <div class="close-button" onclick="document.getElementById('fav-modal').classList.toggle('hidden')">
                 ❌
             </div>
-            <h2>Favourites</h2>
+            <h2>Browse...</h2>
+            <div class="controls">
+                <label>Type: 
+                    <select id="browse-type-select" onchange="updateBrowse()">
+                        <option value="trees">Trees</option>
+                        <option value="messages">Messages</option>
+                        <option value="blocks">Blocks</option>
+                        <option value="fav">Favourites</option>
+                    </select>
+                </label>
+                <input id="browse-typeahead" type="text" oninput="updateBrowseTypeahead()" placeholder="Search name or GUID..." />
+            </div>
             <ul id="fav-list">
 
             </ul>
@@ -111,7 +120,6 @@
     </div>
     <script>
         if (localStorage.getItem('favs') == null) localStorage.setItem('favs', '[]');
-        updateFavButton();
 
         if(window?.queryParams?.caseEditorLink === 'true') {
             document.querySelector('#path-to-read').value = window.queryParams.documentId;
@@ -165,8 +173,6 @@
             }
 
             await initAndLoad(prefix + fileID + postfix);
-
-            updateFavButton();
         }
 
         async function updateSelectedMod() {
@@ -210,8 +216,6 @@
             document.getElementById('path-to-read').value = newGUID;
 
             await loadFromGUI();
-
-            updateFavButton();
         }
 
         function setSaving(saving) {
@@ -223,15 +227,52 @@
         }
         setSaving(true);
 
-        function showFavs() {
-            document.getElementById('fav-list').innerHTML = JSON.parse(localStorage.getItem('favs')).map(fav =>
-                `<li>${fav.name} - <span class="link-element" onclick="document.getElementById('path-to-read').value = '${fav.guid}'; loadFromGUI(); showFavs();">${fav.guid}</span></li>`
-            ).join('');
+        function showBrowse() {
+            updateBrowse();
             document.getElementById('fav-modal').classList.toggle('hidden')
         }
 
-        function toggleFav() {
-            let guid = document.getElementById('path-to-read').value;
+        function updateBrowse() {
+            const browseTypeSelector = document.querySelector('#browse-type-select');
+            const browseList = document.querySelector('#fav-list');
+
+            browseList.replaceChildren();
+
+            let listToShow; 
+
+            if(browseTypeSelector.value === 'fav') {
+                listToShow = JSON.parse(localStorage.getItem('favs'));
+            } else {
+                listToShow = window.ddsMap[browseTypeSelector.value].sort((a, b) => window.ddsMap.idNameMap[a].localeCompare(window.ddsMap.idNameMap[b])).map(id => ({
+                    guid: id,
+                    name: window.ddsMap.idNameMap[id]
+                }));
+            }
+
+            document.getElementById('fav-list').innerHTML = listToShow.map(fav =>
+                `<li><span class="link-element" onclick="document.getElementById('path-to-read').value = '${fav.guid}'; loadFromGUI(); showFavs();">${fav.guid}</span>: ${fav.name}</li>`
+            ).join('');
+        }
+
+        function updateBrowseTypeahead() {
+            const browseTypeAheadSelector = document.querySelector('#browse-typeahead');
+            const browseList = document.querySelector('#fav-list');
+            
+            browseList.querySelectorAll('li').forEach(element => {
+                let visible = false;
+                if(browseTypeAheadSelector.value === "")
+                    visible = true;
+                else if(element.innerText.toLocaleLowerCase().indexOf(browseTypeAheadSelector.value.toLocaleLowerCase()) !== -1)
+                    visible = true;
+
+                if(visible)
+                    element.classList.remove('fav-typeahead-hidden')
+                else
+                    element.classList.add('fav-typeahead-hidden')
+            })
+        }
+
+        window.toggleFav = (guid, type) => {
             let favs = JSON.parse(localStorage.getItem('favs'));
 
             let currentFav = favs.find(ele => ele.guid === guid);
@@ -239,11 +280,11 @@
             if (currentFav) {
                 favs.splice(favs.indexOf(currentFav), 1);
             } else {
-                let name = prompt('Enter name for this GUID');
+                let name = prompt('Name this favourite:', window.ddsMap.idNameMap[guid]);
                 if (name) {
                     favs.push({
                         mod: window.selectedMod,
-                        type: 'tree',
+                        type,
                         guid,
                         name
                     });
@@ -252,12 +293,7 @@
 
             localStorage.setItem('favs', JSON.stringify(favs));
 
-            updateFavButton();
-        }
-
-        function updateFavButton() {
-            let currentFav = JSON.parse(localStorage.getItem('favs')).find(ele => ele.guid === document.getElementById('path-to-read').value);
-            document.getElementById('toggle-favs-button').innerText = currentFav ? 'Unfavourite' : 'Favourite';
+            return !currentFav;
         }
     </script>
 </body>

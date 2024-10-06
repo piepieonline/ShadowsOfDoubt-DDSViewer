@@ -1,10 +1,22 @@
-#path-to-read {
-    width: 500px;
-}
+
 
 .editor {
     .controls {
         text-align: center;
+
+        #select-loaded-mod {
+            min-width: 100px;
+            max-width: fit-content;
+        }
+
+        #select-guid-type {
+            width: 100px;
+        }
+
+        #path-to-read {
+            width: 280px;
+            text-align: center;
+        }
     }
 }
 
@@ -76,6 +88,12 @@
     }
 }
 
+.fav-icon {
+    margin-left: 5px;
+    font-size: 22px;
+    color: red;
+}
+
 .close-button {
     position: absolute;
     top: 8px;
@@ -87,6 +105,7 @@
     cursor: pointer;  
     color: blue;
     text-decoration: underline;
+    font-family: monospace;
 }
 
 /* Modal */
@@ -160,5 +179,27 @@
 
     p {
         margin-bottom: 18px;
+    }
+}
+
+#fav-modal {
+    h2 {
+        font-size: 22px;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    ul#fav-list {
+        overflow-y: auto;
+        max-height: calc(100% - 40px);
+    }
+
+    .controls {
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .fav-typeahead-hidden {
+        display: none;
     }
 }

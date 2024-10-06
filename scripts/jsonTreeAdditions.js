@@ -25,16 +25,40 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
     titleEle.className = "doc-title";
     const fileNameData = path.match(/.*\/(.*)\.(\w+)/);
     const fileId = fileNameData[1];
-    const fileType = capitalizeFirstLetter(fileNameData[2]);
+    
+    let fileType;
+
+    switch(fileNameData[2])
+    {
+        case 'tree':
+            fileType = 'tree';
+            break;
+        case 'msg':
+            fileType = 'message';
+            break;
+        case 'block':
+            fileType = 'block';
+            break;
+    }
+
     // TODO: Can we get name from the caller rather than this mapping
     // This mapping won't work for custom
-    titleEle.innerHTML = `<h2>${fileType}: ${window.ddsMap.idNameMap[fileId]}</h2><h3>${fileId} <span class="copy-icon" title="Copy GUID">📄<span>📄</span></span></h3>`;
+    titleEle.innerHTML = `<h2>${capitalizeFirstLetter(fileType)}: ${window.ddsMap.idNameMap[fileId]}</h2><h3>${fileId} <span class="copy-icon" title="Copy GUID">📄<span>📄</span></span><span class="fav-icon"></span></h3>`;
     editorBar.appendChild(titleEle);
 
+    // Copy GUID function
     titleEle.querySelector('.copy-icon').addEventListener('click', () => {
         navigator.clipboard.writeText(fileId);
     });
     
+    // Favourite function and icon
+    titleEle.querySelector('.fav-icon').innerText = JSON.parse(localStorage.getItem('favs')).find(ele => ele.guid === fileId) ? '❤' : '♡';
+    titleEle.querySelector('.fav-icon').addEventListener('click', () => {
+        const isNowFav = window.toggleFav(fileId, fileType);
+        titleEle.querySelector('.fav-icon').innerText = isNowFav ? '❤' : '♡';
+    });
+
+
     const closeCross = document.createElement("div");
     closeCross.innerText = "❌";
     closeCross.className = "close-button";
