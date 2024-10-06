@@ -6,20 +6,35 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
     div.className = "file-window";
     parent.appendChild(div);
 
-    const controlsEle = document.createElement("div");
-    controlsEle.className = "jsontree-container-controls";
-    div.appendChild(controlsEle);
-
     const jsontreeEle = document.createElement("div");
     jsontreeEle.id = "jsontree-container_" + thisTreeCount;
     jsontreeEle.className = "jsontree-container";
     div.appendChild(jsontreeEle);
 
+    // Controls sit outside the tree element
+    const controlsEle = document.createElement("div");
+    controlsEle.className = "jsontree-container-controls";
+    // div.appendChild(controlsEle);
+
+    // Editor bar sits inside the tree
+    const editorBar = document.createElement("div");
+    editorBar.className = "editor-bar";
+    jsontreeEle.appendChild(editorBar);
+
     const titleEle = document.createElement("div");
     titleEle.className = "doc-title";
-    titleEle.innerText = path;
-    controlsEle.appendChild(titleEle);
+    const fileNameData = path.match(/.*\/(.*)\.(\w+)/);
+    const fileId = fileNameData[1];
+    const fileType = capitalizeFirstLetter(fileNameData[2]);
+    // TODO: Can we get name from the caller rather than this mapping
+    // This mapping won't work for custom
+    titleEle.innerHTML = `<h2>${fileType}: ${window.ddsMap.idNameMap[fileId]}</h2><h3>${fileId} <span class="copy-icon" title="Copy GUID">📄<span>📄</span></span></h3>`;
+    editorBar.appendChild(titleEle);
 
+    titleEle.querySelector('.copy-icon').addEventListener('click', () => {
+        navigator.clipboard.writeText(fileId);
+    });
+    
     const closeCross = document.createElement("div");
     closeCross.innerText = "❌";
     closeCross.className = "close-button";
@@ -28,11 +43,6 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
     })
     controlsEle.appendChild(closeCross);
 
-    // Editor bar
-    const editorBar = document.createElement("div");
-    editorBar.className = "editor-bar";
-    jsontreeEle.appendChild(editorBar);
-
     const saveChanges = document.createElement("button");
     saveChanges.innerText = "Save";
     saveChanges.addEventListener('click', () => editorCallbacks.save(true))
@@ -40,7 +50,7 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
 
     const copySource = document.createElement("button");
     copySource.innerText = "Copy Source";
-    copySource.addEventListener('click',editorCallbacks.copySource)
+    copySource.addEventListener('click', editorCallbacks.copySource)
     editorBar.appendChild(copySource);
 
     return jsontreeEle;
@@ -81,4 +91,8 @@ function createEnumSelectElement(domNode, options, selectedIndex) {
     }
 
     return selectList;
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }

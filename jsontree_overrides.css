@@ -1,0 +1,99 @@
+/*I don't sort this sry*/
+#trees {
+    font-family:monospace;
+    font-size: 14px;
+    color: black;
+    display: grid;
+    grid-auto-columns: minmax(500px, auto);
+    grid-auto-flow: column;
+    grid-gap: 10px;
+}
+
+#trees .link-element {
+    cursor: pointer;
+    text-decoration-line: underline;
+}
+
+#trees .jsontree_label[title]:not([title=""]) {
+    text-decoration-style: dotted;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+}
+
+#trees li {
+    list-style-type: none;
+}
+
+#trees .jsontree_label, #trees input, #trees select {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.select2-dropdown input, #trees input, #trees select {
+    padding: 2px 10px;
+    height: 100%;
+    margin-bottom: 5px;
+    width: max-content;
+    min-width: 200px;
+}
+
+#trees input:read-only {
+    opacity: var(--pico-form-element-disabled-opacity);
+}
+
+#trees > * {
+    background: #c52f2110;
+    border-radius: 5px;
+}
+
+#trees > .select2-container {
+    padding: 0;
+}
+
+.select2-dropdown {
+    font-family:monospace;
+    font-size: 14px;
+    color: black;
+}
+
+.select2 {
+    width: 90% !important;
+}
+
+#trees .select2-search__field {
+    width: 100%;
+}
+
+#trees .editor-bar button {
+    padding: 5px;
+    margin: 0 5px 0 0;
+    max-width: 100px;
+}
+
+#trees .editor-bar h5 {
+    padding: 0;
+    margin: 0;
+    margin-top: -15px;
+    font-size: 24px;
+}
+
+#trees .editor-bar ul, #trees .editor-bar li {
+    display: block;
+    padding: 5px 5px 0;
+}
+
+/*JSON tree's styles*/
+.jsontree_tree {
+    margin-left: 0;
+    padding: 0 10px 10px;
+}
+
+#trees .jsontree_child-nodes {
+    margin-left: 0;
+}
+
+.jsontree-container .jsontree_child-nodes {
+    padding-left: 20px;
+    margin-left: 0;
+    border-left: 1px dotted #c52f2180;
+}
