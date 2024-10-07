@@ -43,7 +43,7 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
 
     // TODO: Can we get name from the caller rather than this mapping
     // This mapping won't work for custom
-    titleEle.innerHTML = `<h2>${capitalizeFirstLetter(fileType)}: ${window.ddsMap.idNameMap[fileId]}</h2><h3>${fileId} <span class="copy-icon" title="Copy GUID">📄<span>📄</span></span><span class="fav-icon"></span></h3>`;
+    titleEle.innerHTML = `<h2>${capitalizeFirstLetter(fileType)}: ${window.ddsMap.idNameMap[fileId]}</h2><h3>${fileId} <span class="copy-icon" title="Copy GUID">📄<span>📄</span></span><span class="fav-icon" title="Save to favourites"></span></h3>`;
     editorBar.appendChild(titleEle);
 
     // Copy GUID function
