@@ -55,7 +55,7 @@ async function loadFromGUI() {
 async function updateSelectedMod() {
     window.selectedMod = window.loadedMods.find(mod => mod.modName == document.getElementById('select-loaded-mod').value);
 
-    if (window.savingEnabled) {
+    if (window.selectedMod != null && window.savingEnabled) {
         await openModFolder(window.selectedMod.modName, true);
     }
 

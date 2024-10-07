@@ -9,11 +9,6 @@
         window.queryParams = Object.fromEntries(new URLSearchParams(location.search));
 
         if (localStorage.getItem('favs') == null) localStorage.setItem('favs', '[]');
-
-        if(window?.queryParams?.caseEditorLink === 'true') {
-            document.querySelector('#path-to-read').value = window.queryParams.documentId;
-            if(window.queryParams.documentType != 'unknown') document.querySelector('#select-guid-type').value = window.queryParams.documentType;
-        }
     </script>
 
     <script src="./libs/jsonTree/jsonTree.js"></script>
@@ -154,6 +149,10 @@
         </div>
     </div>
     <script>
+        if(window?.queryParams?.caseEditorLink === 'true') {
+            document.querySelector('#path-to-read').value = window.queryParams.documentId;
+            if(window.queryParams.documentType != 'unknown') document.querySelector('#select-guid-type').value = window.queryParams.documentType;
+        }
         setSaving(true);
     </script>
 </body>
