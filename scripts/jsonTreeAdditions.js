@@ -1,10 +1,10 @@
-function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
+function addTreeElement(thisTreeCount, parentElement, fileData, editorCallbacks) {
     deleteTree(thisTreeCount);
 
     const div = document.createElement("div");
     div.id = "file-window-" + thisTreeCount;
     div.className = "file-window";
-    parent.appendChild(div);
+    parentElement.appendChild(div);
 
     const jsontreeEle = document.createElement("div");
     jsontreeEle.id = "jsontree-container_" + thisTreeCount;
@@ -23,7 +23,7 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
 
     const titleEle = document.createElement("div");
     titleEle.className = "doc-title";
-    const fileNameData = path.match(/.*\/(.*)\.(\w+)/);
+    const fileNameData = fileData.path.match(/.*\/(.*)\.(\w+)/);
     const fileId = fileNameData[1];
     
     let fileType;
@@ -43,7 +43,7 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
 
     // TODO: Can we get name from the caller rather than this mapping
     // This mapping won't work for custom
-    titleEle.innerHTML = `<h2>${capitalizeFirstLetter(fileType)}: ${window.ddsMap.idNameMap[fileId]}</h2><h3>${fileId} <span class="copy-icon" title="Copy GUID">📄<span>📄</span></span><span class="fav-icon" title="Save to favourites"></span></h3>`;
+    titleEle.innerHTML = `<h2>${capitalizeFirstLetter(fileType)}: ${fileData.name}</h2><h3>${fileId} <span class="copy-icon" title="Copy GUID">📄<span>📄</span></span><span class="fav-icon" title="Save to favourites"></span></h3>`;
     editorBar.appendChild(titleEle);
 
     // Copy GUID function
@@ -71,6 +71,11 @@ function addTreeElement(thisTreeCount, path, parent, editorCallbacks) {
     saveChanges.innerText = "Save";
     saveChanges.addEventListener('click', () => editorCallbacks.save(true))
     editorBar.appendChild(saveChanges);
+
+    const useAsTemplate = document.createElement("button");
+    useAsTemplate.innerText = "Use As Template";
+    useAsTemplate.addEventListener('click', editorCallbacks.useAsTemplate)
+    editorBar.appendChild(useAsTemplate);
 
     const copySource = document.createElement("button");
     copySource.innerText = "Copy Source";

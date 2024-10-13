@@ -21,15 +21,25 @@ async function openModFolder(modName, create) {
 }
 
 function cloneTemplate(template) {
-    return JSON.parse(JSON.stringify(window.templates[template]))
+    return cloneFile(window.templates[template]);
 }
 
-async function createNewFile(type) {
+function cloneFile(file) {
+    return JSON.parse(JSON.stringify(file));
+}
+
+async function createNewFile(type, templateData) {
     async function createNewFileImpl(folderHandle, type, callback) {
         let guid = crypto.randomUUID();
         let newHandle = await getFile(folderHandle, [guid + "." + (type == 'message' ? 'msg' : type)], true);
 
-        let newContent = cloneTemplate(type);
+        let newContent = null;
+
+        if (templateData != null) {
+            newContent = cloneFile(templateData);
+        } else {
+            newContent = cloneTemplate(type);
+        }
 
         newContent.id = guid;
 
@@ -43,18 +53,26 @@ async function createNewFile(type) {
     switch (type) {
         case 'tree':
             return createNewFileImpl(window.selectedMod.trees, 'tree', async newContent => {
-                newContent.messages.push(cloneTemplate('treeMessage'));
-                newContent.messages[0].msgID = await createNewFile('message');
-                newContent.messages[0].instanceID = crypto.randomUUID();
-                newContent.name = makeNameFieldSafe(window.selectedMod.modName + "-" + 'DefaultTree');
-                newContent.startingMessage = newContent.messages[0].instanceID;
+                if (newContent.id === 'DEFAULT_GUID') {
+                    newContent.messages.push(cloneTemplate('treeMessage'));
+                    newContent.messages[0].msgID = await createNewFile('message');
+                    newContent.messages[0].instanceID = crypto.randomUUID();
+                    newContent.name = makeNameFieldSafe(window.selectedMod.modName + "-" + 'DefaultTree');
+                    newContent.startingMessage = newContent.messages[0].instanceID;
+                } else {
+                    newContent.name += " (Clone)";
+                }
             });
         case 'message':
             return createNewFileImpl(window.selectedMod.messages, 'message', async newContent => {
-                newContent.blocks.push(cloneTemplate('messageBlock'));
-                newContent.blocks[0].blockID = await createNewFile('block');
-                newContent.blocks[0].instanceID = crypto.randomUUID();
-                newContent.name = makeNameFieldSafe(window.selectedMod.modName + "-" + 'DefaultBlock');
+                if (newContent.id === 'DEFAULT_GUID') {
+                    newContent.blocks.push(cloneTemplate('messageBlock'));
+                    newContent.blocks[0].blockID = await createNewFile('block');
+                    newContent.blocks[0].instanceID = crypto.randomUUID();
+                    newContent.name = makeNameFieldSafe(window.selectedMod.modName + "-" + 'DefaultBlock');
+                } else {
+                    newContent.name += " (Clone)";
+                }
             });
         case 'block':
             return createNewFileImpl(window.selectedMod.blocks, 'block', async newContent => {
@@ -69,7 +87,7 @@ async function createNewFile(type) {
 async function createFileIfNotExisting(type, guid) {
     let handle, filename, contentType;
 
-    switch(type) {
+    switch (type) {
         case 'newspaper':
             handle = window.selectedMod.messages;
             filename = [`${guid}.newspaper`];
@@ -80,8 +98,7 @@ async function createFileIfNotExisting(type, guid) {
     }
 
     let file = await tryGetFile(handle, filename)
-    if(!file)
-    {
+    if (!file) {
         file = await getFile(handle, filename, true);
         await writeFile(file, JSON.stringify(cloneTemplate(contentType)));
     }

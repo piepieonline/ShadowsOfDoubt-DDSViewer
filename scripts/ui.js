@@ -82,15 +82,16 @@ async function newMod() {
     updateSelectedMod();
 }
 
-async function newFile() {
+async function newFile(type, templateData) {
     if (window.selectedMod == null) {
         alert('Please select a mod to edit first');
         throw 'Please select a mod to edit first';
     }
 
-    let newGUID = await createNewFile(document.getElementById('select-guid-type').value)
+    let newGUID = await createNewFile(type, templateData)
 
     document.getElementById('path-to-read').value = newGUID;
+    document.getElementById('select-guid-type').value = type;
 
     await loadFromGUI();
 }

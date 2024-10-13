@@ -47,14 +47,13 @@ async function loadI18n() {
     }
 }
 
-async function loadFile(path, thisTreeCount, parentData) {
-    var treeEle = addTreeElement(thisTreeCount, path, document.getElementById('trees'), { copySource, save })
-
+async function loadFile(path, thisTreeCount, parentData = null, openTheseIds = null) {
     var data = null;
-
+    var fileType;
+    
     var vanillaDataFile = await (await (await tryGetFile(window.dirHandleStreamingAssets, path.split('/')))?.getFile())?.text();
     var patchDataFile = window.selectedMod != null ? (await (await (await tryGetFile(window.selectedMod.baseFolder, (path + '_patch').split('/')))?.getFile())?.text()) : null;
-
+    
     if (vanillaDataFile != null) {
         data = JSON.parse(vanillaDataFile);
         if (patchDataFile != null) {
@@ -63,11 +62,12 @@ async function loadFile(path, thisTreeCount, parentData) {
     } else {
         data = JSON.parse(await (await (await tryGetFile(window.selectedMod.baseFolder, path.split('/')))?.getFile())?.text());
     }
-
+    
     // Show actual text
     createDummyKeys(data);
-
+    
     // Create json-tree
+    var treeEle = addTreeElement(thisTreeCount, document.getElementById('trees'), { path, name: data.name }, { copySource, useAsTemplate, save })
     var tree = jsonTree.create(data, treeEle);
     runTreeSetup();
 
@@ -77,13 +77,22 @@ async function loadFile(path, thisTreeCount, parentData) {
     }
 
     if(path.endsWith(".tree")) {
+        fileType = 'tree';
         let validMessageId = data.messages.find(msg => GUID_PATTERN.test(msg.msgID))?.msgID;
+
+        if(openTheseIds) {
+                
+        }
+
         if(validMessageId)
             await loadFile(`DDS/Messages/${validMessageId}.msg`, 1, data)
     } else if(path.endsWith(".msg")) {
+        fileType = 'message';
         let validBlockId = data.blocks.find(block => GUID_PATTERN.test(block.blockID))?.blockID;
         if(validBlockId)
             await loadFile(`DDS/Blocks/${validBlockId}.block`, 2, data)
+    } else if(path.endsWith('.block')) {
+        fileType = 'block';
     }
 
     function createDummyKeys(data) {
@@ -304,6 +313,10 @@ async function loadFile(path, thisTreeCount, parentData) {
 
     async function copySource() {
         navigator.clipboard.writeText(getSaveSafeJSON());
+    }
+
+    async function useAsTemplate() {
+        newFile(fileType, data);
     }
 
     async function save(force) {

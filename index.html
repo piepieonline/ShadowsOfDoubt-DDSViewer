@@ -46,7 +46,7 @@
             </select>
             <input id="path-to-read" placeholder="Path" value="74da6230-45ef-4bb4-8f2e-8f6840e56927" />
             <button onclick="loadFromGUI()">Load</button>
-            <button id="new-file-button" onclick="newFile()">New tree</button>
+            <button id="new-file-button" onclick="newFile(document.getElementById('select-guid-type').value)">New tree</button>
             <button id="saving-enabled-button" onclick="setSaving(!window.savingEnabled)">Disable Saving</button>
             <button onclick="showBrowse()">Browse...</button>
             <button onclick="showReverseSearch()">Reverse Search</button>
