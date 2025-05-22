@@ -9,6 +9,7 @@ const GUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3
 
 async function initAndLoad(path) {
     window.stringMapping = {};
+    window.moddedStringMapping = {};
     await loadI18n();
     await loadFile(path, 0);
 }
@@ -39,11 +40,16 @@ async function loadI18n() {
 
     window.stringMapping = await loadStringsFile(window.dirHandleStreamingAssets, ['Strings', 'English', 'DDS', 'dds.blocks.csv']);
 
-    if (window.selectedMod != null) {
-        window.stringMapping = {
-            ...window.stringMapping,
-            ...(await loadStringsFile(window.selectedMod.ddsStrings, ['dds.blocks.csv']))
-        };
+    // Try to load the existing mod DDS file. Just skip if it's missing
+    try
+    {
+        if (window.selectedMod != null) {
+            window.moddedStringMapping = await loadStringsFile(window.selectedMod.ddsStrings, ['dds.blocks.csv']);
+        }
+    }
+    catch
+    {
+        moddedStringMapping = {};
     }
 }
 
@@ -97,7 +103,7 @@ async function loadFile(path, thisTreeCount, parentData = null, openTheseIds = n
 
     function createDummyKeys(data) {
         function createDummyLocalisationKey(obj, id) {
-            let value = window.stringMapping[id]?.text || LOCALISATION_MISSING_STRING;
+            let value = window.moddedStringMapping[id]?.text || window.stringMapping[id]?.text || LOCALISATION_MISSING_STRING;
 
             if (value.startsWith('"')) {
                 value = value.substring(1, value.length - 1);
@@ -228,16 +234,7 @@ async function loadFile(path, thisTreeCount, parentData = null, openTheseIds = n
                             let guidString = node.el.querySelector('.jsontree_value').innerText;
                             guidString = guidString.substring(1, guidString.length - 1);
 
-                            if (window.stringMapping[guidString].source == 'StreamingAssets') {
-                                alert('Modifying vanilla content is unsupported');
-                                throw 'Modifying vanilla content is unsupported';
-                            }
-
-                            if (previousValue == LOCALISATION_MISSING_STRING) {
-                                await addToStrings(guidString, parsed);
-                            } else {
-                                await modifyExistingString(guidString, parsed);
-                            }
+                            await addOrModifyStrings(guidString, parsed);
 
                             // Visually update the value, since we aren't changing the tree
                             item.el.querySelector('.jsontree_value').innerText = parsed.startsWith('"') ? parsed : '"' + parsed + '"';
@@ -368,7 +365,7 @@ async function getTemplateForItem(item) {
                 replacement.replaceWithID = guid;
             } else {
                 replacement.replaceWithID = crypto.randomUUID();
-                await addToStrings(replacement.replaceWithID, prompt(`English Line`));
+                await addOrModifyStrings(replacement.replaceWithID, prompt(`English Line`));
             }
             return replacement;
         case 'jobs':

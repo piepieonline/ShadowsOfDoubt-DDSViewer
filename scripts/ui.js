@@ -241,12 +241,14 @@ function updateRSearchResultsTable(blockId) {
     var treeId = window.ddsMap.reverseIdMap[messageId].join('</li><li>');
     var treeList = `<td><ul><li>${treeId}</li></ul></td>`;
 
+    var openList = {};
+
     let currentId = blockId;
     while (window.ddsMap.reverseIdMap[currentId] != null) {
         // TODO: Show trees only? How to display this
         cells = '<td><ul>' +
             window.ddsMap.reverseIdMap[currentId]
-                .filter((value, index, array) => array.indexOf(value) === index)
+                .filter((value, index, array) => array.indexOf(value) === index) // One result per tree/message found contained in
                 .map(id => ({ name: window.ddsMap.idNameMap[id], id }))
                 .map(ele => `<li class="link-element" x-guid=${ele.id}>${window.ddsMap.idNameMap[ele.id] || ele.id}</li>`)
                 .join('')

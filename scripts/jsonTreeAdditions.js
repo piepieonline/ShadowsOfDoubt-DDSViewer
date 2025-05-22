@@ -41,8 +41,6 @@ function addTreeElement(thisTreeCount, parentElement, fileData, editorCallbacks)
             break;
     }
 
-    // TODO: Can we get name from the caller rather than this mapping
-    // This mapping won't work for custom
     titleEle.innerHTML = `<h2>${capitalizeFirstLetter(fileType)}: ${fileData.name}</h2><h3>${fileId} <span class="copy-icon" title="Copy GUID">📄<span>📄</span></span><span class="fav-icon" title="Save to favourites"></span></h3>`;
     editorBar.appendChild(titleEle);
 

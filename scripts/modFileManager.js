@@ -79,7 +79,7 @@ async function createNewFile(type, templateData) {
                 let line = JSON.parse(makeCSVSafe(prompt(`English Line`)));
                 newContent.name = makeNameFieldSafe(window.selectedMod.modName + "-" + line.substring(0, 20));
 
-                await addToStrings(newContent.id, line);
+                await addOrModifyStrings(newContent.id, line);
             });
     }
 }
@@ -104,23 +104,22 @@ async function createFileIfNotExisting(type, guid) {
     }
 }
 
-async function addToStrings(id, content) {
-    let d = new Date();
-    let datestring = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + " " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
-    await writeFile(await getFile(window.selectedMod.ddsStrings, ['dds.blocks.csv'], true), `\n${id},,${content},,,,${datestring}`, true);
-    await loadI18n();
-}
-
-async function modifyExistingString(id, content) {
+async function addOrModifyStrings(id, content) {
     let d = new Date();
     let datestring = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + " " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
 
     let stringsFileHandle = await getFile(window.selectedMod.ddsStrings, ['dds.blocks.csv'], true);
-    let stringsFileContent = (await (await stringsFileHandle.getFile()).text())
-        // Split the file by line, find and replace the given GUID, recombine the file
-        .split('\n').map(val => (val.startsWith(id) ? `${id},,${content},,,,${datestring}` : val)).join('\n');
+    let stringsFileContent = (await (await stringsFileHandle.getFile()).text());
 
-    await writeFile(stringsFileHandle, stringsFileContent, false);
+    if(stringsFileContent.includes(id)) {
+        // If we have the content, overwrite it
+        stringsFileContent = stringsFileContent.split('\n').map(val => (val.startsWith(id) ? `${id},,${content},,,,${datestring}` : val)).join('\n');
+        await writeFile(stringsFileHandle, stringsFileContent, false);
+    } else {
+        // Otherwise, just append the new content
+        await writeFile(stringsFileHandle, `\n${id},,${content},,,,${datestring}`, true);
+    }
+
     await loadI18n();
 }
 
